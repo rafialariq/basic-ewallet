@@ -18,11 +18,23 @@ type transactionRepo struct {
 }
 
 func (t *transactionRepo) WithdrawBalance(sender string, receiver string, amount float64) error {
+	var balance float64
 	var senderInDb model.TransactionCode
 	var receiverInDb model.TransactionCode
 
-	row := t.db.QueryRow(`SELECT id, code FROM mst_transaction_codes WHERE code = $1`, sender)
-	err := row.Scan(&senderInDb.Id, &senderInDb.Code)
+	row := t.db.QueryRow(`SELECT balance FROM mst_user WHERE phone_number = $1`, sender)
+	err := row.Scan(&balance)
+
+	if err != nil {
+		return err
+	}
+
+	if balance < amount {
+		return errors.New("Balance is not sufficient")
+	}
+
+	row = t.db.QueryRow(`SELECT id, code FROM mst_transaction_codes WHERE code = $1`, sender)
+	err = row.Scan(&senderInDb.Id, &senderInDb.Code)
 
 	if senderInDb.Id == 0 {
 		return errors.New("Sender number not found")
