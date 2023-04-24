@@ -3,6 +3,7 @@ package repository
 import (
 	"errors"
 	"final_project_easycash/model"
+	"fmt"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -10,7 +11,7 @@ import (
 
 type TransactionRepo interface {
 	WithdrawBalance(sender string, receiver string, amount float64) error
-	// TransferBalance(sender string, receiver string, amount float64) error
+	TransferBalance(sender string, receiver string, amount float64) error
 }
 
 type transactionRepo struct {
@@ -21,6 +22,7 @@ func (t *transactionRepo) WithdrawBalance(sender string, receiver string, amount
 	var balance float64
 	var senderInDb model.TransactionCode
 	var receiverInDb model.TransactionCode
+	fmt.Println(sender, receiver, amount)
 
 	row := t.db.QueryRow(`SELECT balance FROM mst_user WHERE phone_number = $1`, sender)
 	err := row.Scan(&balance)
@@ -33,10 +35,10 @@ func (t *transactionRepo) WithdrawBalance(sender string, receiver string, amount
 		return errors.New("Balance is not sufficient")
 	}
 
-	row = t.db.QueryRow(`SELECT id, code FROM mst_transaction_codes WHERE code = $1`, sender)
-	err = row.Scan(&senderInDb.Id, &senderInDb.Code)
+	row = t.db.QueryRow(`SELECT phone_number FROM mst_user WHERE phone_number = $1`, sender)
+	err = row.Scan(&senderInDb.Code)
 
-	if senderInDb.Id == 0 {
+	if senderInDb.Code == "" {
 		return errors.New("Sender number not found")
 	}
 
@@ -44,10 +46,10 @@ func (t *transactionRepo) WithdrawBalance(sender string, receiver string, amount
 		return err
 	}
 
-	row = t.db.QueryRow(`SELECT id, code FROM mst_transaction_codes WHERE code = $1`, receiver)
-	err = row.Scan(&receiverInDb.Id, &receiverInDb.Code)
+	row = t.db.QueryRow(`SELECT bank_number FROM mst_bank WHERE bank_number = $1`, receiver)
+	err = row.Scan(&receiverInDb.Code)
 
-	if receiverInDb.Id == 0 {
+	if receiverInDb.Code == "" {
 		return errors.New("Receiver number not found")
 	}
 
@@ -87,48 +89,83 @@ func (t *transactionRepo) WithdrawBalance(sender string, receiver string, amount
 	return nil
 }
 
-// func (t *transactionRepo) TransferBalance(sender string, receiver string, amount float64) error {
-// 	var senderInDb model.TransactionCode
-// 	var receiverInDb model.TransactionCode
+func (t *transactionRepo) TransferBalance(sender string, receiver string, amount float64) error {
+	var balance float64
+	var senderInDb model.TransactionCode
+	var receiverInDb model.TransactionCode
 
-// 	row := t.db.QueryRow(`SELECT id, code FROM mst_transaction_code WHERE code = $1`, sender)
-// 	err := row.Scan(&senderInDb.Id, &senderInDb.AccountType, &senderInDb.Code)
+	row := t.db.QueryRow(`SELECT balance FROM mst_user WHERE phone_number = $1`, sender)
+	err := row.Scan(&balance)
 
-// 	if senderInDb.Id == 0 {
-// 		return errors.New("Sender number not found")
-// 	}
+	if err != nil {
+		return err
+	}
 
-// 	if err != nil {
-// 		return err
-// 	}
+	if balance < amount {
+		return errors.New("Balance is not sufficient")
+	}
 
-// 	row = t.db.QueryRow(`SELECT id, code FROM mst_transaction_code WHERE code = $1`, receiver)
-// 	err = row.Scan(&receiverInDb.Id, &receiverInDb.AccountType, &receiverInDb.Code)
+	row = t.db.QueryRow(`SELECT phone_number FROM mst_user WHERE phone_number = $1`, sender)
+	err = row.Scan(&senderInDb.Code)
 
-// 	if receiverInDb.Id == 0 {
-// 		return errors.New("Receiver number not found")
-// 	}
+	if senderInDb.Code == "" {
+		return errors.New("Sender number not found")
+	}
 
-// 	if err != nil {
-// 		return err
-// 	}
+	if err != nil {
+		return err
+	}
 
-// 	query := "BEGIN; INSERT INTO trx_bills (sender_type_id, sender_id, type_id, amount, date, destination_type_id, destination_id) VALUES ($1, $2, $3, $4, $5, $6, $7); UPDATE mst_users SET balance = balance - $8 WHERE phone_number = $9; UPDATE mst_users SET balance = balance - $10 WHERE phone_number = $11"
-// 	_, err = t.db.Exec(query, &senderInDb.AccountType, &senderInDb.Code, "3", amount, time.Now(), &receiverInDb.AccountType, &receiverInDb.Code, amount, &senderInDb.Id, amount, &receiverInDb.Id)
+	row = t.db.QueryRow(`SELECT phone_number FROM mst_user WHERE phone_number = $1`, receiver)
+	err = row.Scan(&receiverInDb.Code)
 
-// 	if err != nil {
-// 		_, err = t.db.Exec("ROLLBACK;")
-// 		return err
-// 	}
+	if receiverInDb.Code == "" {
+		return errors.New("Receiver number not found")
+	}
 
-// 	_, err = t.db.Exec("COMMIT;")
-// 	if err != nil {
-// 		_, err = t.db.Exec("ROLLBACK;")
-// 		return err
-// 	}
+	if err != nil {
+		return err
+	}
 
-// 	return nil
-// }
+	query := "BEGIN;"
+	_, err = t.db.Exec(query)
+
+	if err != nil {
+		return err
+	}
+
+	query = "INSERT INTO trx_bill (sender_type_id, sender_id, type_id, amount, date, destination_type_id, destination_id) VALUES ($1, $2, $3, $4, $5, $6, $7);"
+	_, err = t.db.Exec(query, 1, senderInDb.Code, 3, amount, time.Now(), 1, receiverInDb.Code)
+
+	if err != nil {
+		_, err = t.db.Exec("ROLLBACK;")
+		return err
+	}
+
+	query = "UPDATE mst_user SET balance = balance - $1 WHERE phone_number = $2;"
+	_, err = t.db.Exec(query, amount, senderInDb.Code)
+
+	if err != nil {
+		_, err = t.db.Exec("ROLLBACK;")
+		return err
+	}
+
+	query = "UPDATE mst_user SET balance = balance + $1 WHERE phone_number = $2;"
+	_, err = t.db.Exec(query, amount, receiverInDb.Code)
+
+	if err != nil {
+		_, err = t.db.Exec("ROLLBACK;")
+		return err
+	}
+
+	_, err = t.db.Exec("COMMIT;")
+	if err != nil {
+		_, err = t.db.Exec("ROLLBACK;")
+		return err
+	}
+
+	return nil
+}
 
 func NewTransactionRepo(db *sqlx.DB) TransactionRepo {
 	repo := new(transactionRepo)

@@ -44,7 +44,8 @@ func main() {
 
 	router := gin.Default()
 
-	router.POST("/transaction/transfer", transactionController.WithdrawBalance)
+	router.POST("/transfer/bank", transactionController.WithdrawBalance)
+	router.POST("/transfer/user", transactionController.TransferBalance)
 
 	if err := router.Run(serverPort); err != nil {
 		log.Fatal(err)
