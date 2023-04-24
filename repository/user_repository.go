@@ -75,7 +75,7 @@ func (u *userRepo) DeleteUserById(id int) error {
 		return err
 	}
 
-	query := "DELETE FROM mst_users WHERE id = $1"
+	query := "DELETE FROM mst_user WHERE id = $1"
 
 	_, err = u.db.Exec(query, id)
 

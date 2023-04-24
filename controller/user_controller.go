@@ -1,10 +1,8 @@
 package controller
 
 import (
-	"errors"
 	"final_project_easycash/model"
 	"final_project_easycash/usecase"
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -21,14 +19,14 @@ func (c *UserController) CheckProfile(ctx *gin.Context) {
 	ctx.Header("Content-Disposition", "attachment; filename=data.json")
 	idInt, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": errors.New("Invalid user ID")})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	res, err := c.usecase.CheckProfile(idInt)
 
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -39,15 +37,13 @@ func (c *UserController) EditProfile(ctx *gin.Context) {
 	var user model.User
 
 	if err := ctx.ShouldBind(&user); err != nil {
-		fmt.Println("brrrr")
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": errors.New("Invalid user ID")})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	err := c.usecase.EditProfile(&user)
 
 	if err != nil {
-		fmt.Println("raw")
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -72,7 +68,7 @@ func (c *UserController) EditPhotoProfile(ctx *gin.Context) {
 
 	fileExt := fileName[1]
 	if strings.ToLower(fileExt) != "jpg" {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": errors.New("Invalid file extension")})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid file extension"})
 		return
 	}
 
@@ -89,17 +85,17 @@ func (c *UserController) EditPhotoProfile(ctx *gin.Context) {
 func (c *UserController) UnregProfile(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, "invalid user ID")
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	err = c.usecase.UnregProfile(id)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, "profile successfully deleted")
+	ctx.JSON(http.StatusOK, gin.H{"message": "profile successfully deleted"})
 }
 
 func NewUserController(u usecase.UserUsecase) *UserController {
