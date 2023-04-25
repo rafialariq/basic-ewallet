@@ -7,6 +7,7 @@ import (
 type TransactionUsecase interface {
 	WithdrawBalance(sender string, receiver string, amount float64) error
 	TransferBalance(sender string, receiver string, amount float64) error
+	TopUpBalance(sender string, receiver string, amount float64) error
 }
 
 type transactionUsecase struct {
@@ -19,6 +20,10 @@ func (u *transactionUsecase) WithdrawBalance(sender string, receiver string, amo
 
 func (u *transactionUsecase) TransferBalance(sender string, receiver string, amount float64) error {
 	return u.transactionRepo.TransferBalance(sender, receiver, amount)
+}
+
+func (u *transactionUsecase) TopUpBalance(sender string, receiver string, amount float64) error {
+	return u.transactionRepo.TopUpBalance(sender, receiver, amount)
 }
 
 func NewTransactionUsecase(transactionRepo repository.TransactionRepo) TransactionUsecase {

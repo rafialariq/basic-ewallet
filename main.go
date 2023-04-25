@@ -46,6 +46,7 @@ func main() {
 
 	router.POST("/transfer/bank", transactionController.WithdrawBalance)
 	router.POST("/transfer/user", transactionController.TransferBalance)
+	router.POST("/topup", transactionController.TopUpBalance)
 
 	if err := router.Run(serverPort); err != nil {
 		log.Fatal(err)
