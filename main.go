@@ -2,6 +2,7 @@ package main
 
 import (
 	"final_project_easycash/controller"
+	"final_project_easycash/middleware"
 	"final_project_easycash/repository"
 	"final_project_easycash/usecase"
 	"final_project_easycash/utils"
@@ -43,9 +44,12 @@ func main() {
 	userRepo := repository.NewUserRepo(db)
 	userUsecase := usecase.NewUserUsecase(userRepo, fileRepo)
 	userController := controller.NewUserController(userUsecase)
-	transactionRepo := repository.NewTransactionRepo(db)
-	transactionUsecase := usecase.NewTransactionUsecase(transactionRepo)
-	transactionController := controller.NewTransactionController(transactionUsecase)
+	transferRepo := repository.NewTransferRepo(db)
+	transferUsecase := usecase.NewTransferUsecase(transferRepo)
+	transferController := controller.NewTransferController(transferUsecase, userUsecase)
+	topUpRepo := repository.NewTopUpRepo(db)
+	topUpUsecase := usecase.NewTopUpUsecase(topUpRepo)
+	topUpController := controller.NewTopUpController(topUpUsecase, userUsecase)
 	registerRepo := repository.NewRegisterRepo(db)
 	registerService := usecase.NewRegisterService(registerRepo)
 	registerController := controller.NewRegisterController(registerService)
@@ -56,14 +60,16 @@ func main() {
 
 	router := gin.Default()
 
-	userProfileRouter := router.Group("/profile")
-	userProfileRouter.GET("/:id", userController.CheckProfile)
-	userProfileRouter.POST("/edit", userController.EditProfile)
-	userProfileRouter.POST("/edit/photo/:id", userController.EditPhotoProfile)
-	userProfileRouter.DELETE("/:id", userController.UnregProfile)
-	router.POST("/transfer/bank", transactionController.WithdrawBalance)
-	router.POST("/transfer/user", transactionController.TransferBalance)
-	router.POST("/topup", transactionController.TopUpBalance)
+	menuRouter := router.Group("/menu")
+	menuRouter.Use(middleware.AuthMiddleware())
+
+	menuRouter.GET("/profile/:username", userController.CheckProfile)
+	menuRouter.POST("/profile/edit", userController.EditProfile)
+	menuRouter.POST("/profile/edit/photo/:username", userController.EditPhotoProfile)
+	menuRouter.DELETE("/profile/:username", userController.UnregProfile)
+	menuRouter.POST("/transfer/bank", transferController.WithdrawBalance)
+	menuRouter.POST("/transfer/user", transferController.TransferBalance)
+	menuRouter.POST("/topup", topUpController.TopUpBalance)
 	router.POST("/signup", registerController.RegisterHandler)
 	router.POST("/login", loginController.LoginHandler)
 

@@ -3,28 +3,29 @@ package repository
 import (
 	"errors"
 	"final_project_easycash/model"
+	"final_project_easycash/utils"
 
 	"github.com/jmoiron/sqlx"
 )
 
 type UserRepo interface {
-	GetUserById(id int) (model.User, error)
+	GetUserById(username string) (model.User, error)
 	UpdateUserById(updatedUserData *model.User) error
-	UpdatePhotoProfile(id int, filePath string) error
-	DeleteUserById(id int) error
+	UpdatePhotoProfile(username string, filePath string) error
+	DeleteUserById(username string) error
 }
 
 type userRepo struct {
 	db *sqlx.DB
 }
 
-func (u *userRepo) GetUserById(id int) (model.User, error) {
+func (u *userRepo) GetUserById(username string) (model.User, error) {
 	var user model.User
-	row := u.db.QueryRow(`SELECT id, username, password, email, phone_number, photo_profile, balance FROM mst_user WHERE id = $1`, id)
+	row := u.db.QueryRow(`SELECT id, username, password, email, phone_number, photo_profile, balance FROM mst_user WHERE username = $1`, username)
 	err := row.Scan(&user.Id, &user.Username, &user.Password, &user.Email, &user.PhoneNumber, &user.PhotoProfile, &user.Balance)
 
-	if user.Id == 0 {
-		return model.User{}, errors.New("User ID not found")
+	if user.Username == "" {
+		return model.User{}, errors.New("Username not found")
 	}
 
 	if err != nil {
@@ -35,31 +36,10 @@ func (u *userRepo) GetUserById(id int) (model.User, error) {
 }
 
 func (u *userRepo) UpdateUserById(updatedUserData *model.User) error {
-	_, err := u.GetUserById(updatedUserData.Id)
+	hashedPassword := utils.PasswordHashing(updatedUserData.Password)
 
-	if err != nil {
-		return err
-	}
-
-	query := `UPDATE mst_user SET username = $1, password = $2, email = $3, phone_number = $4 WHERE id = $5`
-	_, err = u.db.Exec(query, &updatedUserData.Username, &updatedUserData.Password, &updatedUserData.Email, &updatedUserData.PhoneNumber, &updatedUserData.Id)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (u *userRepo) UpdatePhotoProfile(id int, filePath string) error {
-	_, err := u.GetUserById(id)
-
-	if err != nil {
-		return err
-	}
-
-	query := `UPDATE mst_user SET photo_profile = $1 WHERE id = $2`
-	_, err = u.db.Exec(query, &filePath, &id)
+	query := `UPDATE mst_user SET password = $1, email = $2, phone_number = $3 WHERE username = $4`
+	_, err := u.db.Exec(query, &hashedPassword, &updatedUserData.Email, &updatedUserData.PhoneNumber, &updatedUserData.Username)
 
 	if err != nil {
 		return err
@@ -68,16 +48,33 @@ func (u *userRepo) UpdatePhotoProfile(id int, filePath string) error {
 	return nil
 }
 
-func (u *userRepo) DeleteUserById(id int) error {
-	_, err := u.GetUserById(id)
+func (u *userRepo) UpdatePhotoProfile(username string, filePath string) error {
+	_, err := u.GetUserById(username)
 
 	if err != nil {
 		return err
 	}
 
-	query := "DELETE FROM mst_user WHERE id = $1"
+	query := `UPDATE mst_user SET photo_profile = $1 WHERE username = $2`
+	_, err = u.db.Exec(query, &filePath, &username)
 
-	_, err = u.db.Exec(query, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (u *userRepo) DeleteUserById(username string) error {
+	_, err := u.GetUserById(username)
+
+	if err != nil {
+		return err
+	}
+
+	query := "DELETE FROM mst_user WHERE username = $1"
+
+	_, err = u.db.Exec(query, username)
 
 	if err != nil {
 		return err

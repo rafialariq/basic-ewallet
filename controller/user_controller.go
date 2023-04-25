@@ -4,9 +4,9 @@ import (
 	"final_project_easycash/model"
 	"final_project_easycash/usecase"
 	"net/http"
-	"strconv"
 	"strings"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,19 +15,37 @@ type UserController struct {
 }
 
 func (c *UserController) CheckProfile(ctx *gin.Context) {
-	ctx.Header("Content-Type", "application/json")
-	ctx.Header("Content-Disposition", "attachment; filename=data.json")
-	idInt, err := strconv.Atoi(ctx.Param("id"))
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	claims, exists := ctx.Get("claims")
+	if !exists {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "missing claims"})
 		return
 	}
 
-	res, err := c.usecase.CheckProfile(idInt)
+	usernameToken, ok := claims.(jwt.MapClaims)["username"].(string)
+	if !ok {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "invalid claims"})
+		return
+	}
+
+	ctx.Header("Content-Type", "application/json")
+	ctx.Header("Content-Disposition", "attachment; filename=data.json")
+	username := ctx.Param("username")
+
+	if usernameToken != username {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	res, err := c.usecase.CheckProfile(username)
 
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
+		if err.Error() == "Username not found" {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		} else {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
 	}
 
 	ctx.JSON(http.StatusOK, res)
@@ -40,10 +58,30 @@ func (c *UserController) EditProfile(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	claims, exists := ctx.Get("claims")
+	if !exists {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "missing claims"})
+		return
+	}
+
+	usernameToken, ok := claims.(jwt.MapClaims)["username"].(string)
+	if !ok {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "invalid claims"})
+		return
+	}
+
+	if usernameToken != user.Username {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
 
 	err := c.usecase.EditProfile(&user)
 
 	if err != nil {
+		if err.Error() == "invalid email" || err.Error() == "invalid phone number" {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -52,7 +90,7 @@ func (c *UserController) EditProfile(ctx *gin.Context) {
 }
 
 func (c *UserController) EditPhotoProfile(ctx *gin.Context) {
-	id, err := strconv.Atoi(ctx.Param("id"))
+	username := ctx.Param("username")
 
 	file, fileHeader, err := ctx.Request.FormFile("photo")
 	if err != nil {
@@ -72,7 +110,24 @@ func (c *UserController) EditPhotoProfile(ctx *gin.Context) {
 		return
 	}
 
-	err = c.usecase.EditPhotoProfile(id, fileExt, &file)
+	claims, exists := ctx.Get("claims")
+	if !exists {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "missing claims"})
+		return
+	}
+
+	usernameToken, ok := claims.(jwt.MapClaims)["username"].(string)
+	if !ok {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "invalid claims"})
+		return
+	}
+
+	if usernameToken != username {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	err = c.usecase.EditPhotoProfile(username, fileExt, &file)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -83,13 +138,26 @@ func (c *UserController) EditPhotoProfile(ctx *gin.Context) {
 }
 
 func (c *UserController) UnregProfile(ctx *gin.Context) {
-	id, err := strconv.Atoi(ctx.Param("id"))
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	username := ctx.Param("username")
+
+	claims, exists := ctx.Get("claims")
+	if !exists {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "missing claims"})
 		return
 	}
 
-	err = c.usecase.UnregProfile(id)
+	usernameToken, ok := claims.(jwt.MapClaims)["username"].(string)
+	if !ok {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "invalid claims"})
+		return
+	}
+
+	if usernameToken != username {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	err := c.usecase.UnregProfile(username)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

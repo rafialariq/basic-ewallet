@@ -2,19 +2,20 @@ package usecase
 
 import (
 	"encoding/base64"
+	"errors"
 	"final_project_easycash/model"
 	"final_project_easycash/repository"
+	"final_project_easycash/utils"
 	"io/ioutil"
 	"mime/multipart"
 	"os"
-	"strconv"
 )
 
 type UserUsecase interface {
-	CheckProfile(id int) (model.User, error)
+	CheckProfile(username string) (model.User, error)
 	EditProfile(updatedUserData *model.User) error
-	EditPhotoProfile(id int, fileExt string, file *multipart.File) error
-	UnregProfile(id int) error
+	EditPhotoProfile(username string, fileExt string, file *multipart.File) error
+	UnregProfile(username string) error
 }
 
 type userUsecase struct {
@@ -22,8 +23,8 @@ type userUsecase struct {
 	fileRepo repository.FileRepository
 }
 
-func (u *userUsecase) CheckProfile(id int) (model.User, error) {
-	res, err := u.userRepo.GetUserById(id)
+func (u *userUsecase) CheckProfile(username string) (model.User, error) {
+	res, err := u.userRepo.GetUserById(username)
 	if res.PhotoProfile != "-" && res.PhotoProfile != "" {
 		file, err := os.Open(res.PhotoProfile)
 		if err != nil {
@@ -41,20 +42,24 @@ func (u *userUsecase) CheckProfile(id int) (model.User, error) {
 }
 
 func (u *userUsecase) EditProfile(updatedUserData *model.User) error {
+	if utils.ValidateEmail(updatedUserData.Email) {
+		return errors.New("invalid email")
+	} else if !utils.ValidatePhoneNumber(updatedUserData.PhoneNumber) {
+		return errors.New("invalid phone number")
+	}
 	return u.userRepo.UpdateUserById(updatedUserData)
 }
 
-func (u *userUsecase) EditPhotoProfile(id int, fileExt string, file *multipart.File) error {
-	idString := strconv.Itoa(id)
-	filePath, err := u.fileRepo.Save("user"+idString+"."+fileExt, file)
+func (u *userUsecase) EditPhotoProfile(username string, fileExt string, file *multipart.File) error {
+	filePath, err := u.fileRepo.Save("user_"+username+"."+fileExt, file)
 	if err != nil {
 		return err
 	}
-	return u.userRepo.UpdatePhotoProfile(id, filePath)
+	return u.userRepo.UpdatePhotoProfile(username, filePath)
 }
 
-func (u *userUsecase) UnregProfile(id int) error {
-	return u.userRepo.DeleteUserById(id)
+func (u *userUsecase) UnregProfile(username string) error {
+	return u.userRepo.DeleteUserById(username)
 }
 
 func NewUserUsecase(userRepo repository.UserRepo, fileRepo repository.FileRepository) UserUsecase {
