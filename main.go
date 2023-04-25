@@ -43,6 +43,16 @@ func main() {
 	userRepo := repository.NewUserRepo(db)
 	userUsecase := usecase.NewUserUsecase(userRepo, fileRepo)
 	userController := controller.NewUserController(userUsecase)
+	transactionRepo := repository.NewTransactionRepo(db)
+	transactionUsecase := usecase.NewTransactionUsecase(transactionRepo)
+	transactionController := controller.NewTransactionController(transactionUsecase)
+	registerRepo := repository.NewRegisterRepo(db)
+	registerService := usecase.NewRegisterService(registerRepo)
+	registerController := controller.NewRegisterController(registerService)
+
+	loginRepo := repository.NewLoginRepo(db)
+	loginService := usecase.NewLoginService(loginRepo)
+	loginController := controller.NewLoginController(loginService)
 
 	router := gin.Default()
 
@@ -51,6 +61,11 @@ func main() {
 	userProfileRouter.POST("/edit", userController.EditProfile)
 	userProfileRouter.POST("/edit/photo/:id", userController.EditPhotoProfile)
 	userProfileRouter.DELETE("/:id", userController.UnregProfile)
+	router.POST("/transfer/bank", transactionController.WithdrawBalance)
+	router.POST("/transfer/user", transactionController.TransferBalance)
+	router.POST("/topup", transactionController.TopUpBalance)
+	router.POST("/signup", registerController.RegisterHandler)
+	router.POST("/login", loginController.LoginHandler)
 
 	if err := router.Run(serverPort); err != nil {
 		log.Fatal(err)
