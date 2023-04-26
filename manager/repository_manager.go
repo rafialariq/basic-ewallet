@@ -7,10 +7,9 @@ import (
 type RepoManager interface {
 	FileRepo() repository.FileRepository
 	UserRepo() repository.UserRepo
-	TransferRepo() repository.TransferRepo
-	TopUpRepo() repository.TopUpRepo
 	RegisterRepo() repository.RegisterRepo
 	LoginRepo() repository.LoginRepo
+	TransactionRepo() repository.TransactionRepo
 }
 
 type repoManager struct {
@@ -25,12 +24,8 @@ func (r *repoManager) UserRepo() repository.UserRepo {
 	return repository.NewUserRepo(r.infraManager.ConnectDb())
 }
 
-func (r *repoManager) TransferRepo() repository.TransferRepo {
-	return repository.NewTransferRepo(r.infraManager.ConnectDb())
-}
-
-func (r *repoManager) TopUpRepo() repository.TopUpRepo {
-	return repository.NewTopUpRepo(r.infraManager.ConnectDb())
+func (r *repoManager) TransactionRepo() repository.TransactionRepo {
+	return repository.NewTransactionRepo(r.infraManager.ConnectDb())
 }
 
 func (r *repoManager) RegisterRepo() repository.RegisterRepo {

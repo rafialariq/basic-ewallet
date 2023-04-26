@@ -20,8 +20,7 @@ func (p *AppServer) menu() {
 	menuRoutes := p.engine.Group("/menu")
 	menuRoutes.Use(middleware.AuthMiddleware())
 	p.userController(menuRoutes)
-	p.transferController(menuRoutes)
-	p.topUpController(menuRoutes)
+	p.transactionController(menuRoutes)
 	p.registerController(p.engine)
 	p.loginController(p.engine)
 }
@@ -30,12 +29,8 @@ func (p *AppServer) userController(rg *gin.RouterGroup) {
 	controller.NewUserController(rg, p.usecaseManager.UserUsecase())
 }
 
-func (p *AppServer) transferController(rg *gin.RouterGroup) {
-	controller.NewTransferController(rg, p.usecaseManager.TransferUsecase(), p.usecaseManager.UserUsecase())
-}
-
-func (p *AppServer) topUpController(rg *gin.RouterGroup) {
-	controller.NewTopUpController(rg, p.usecaseManager.TopUpUsecase(), p.usecaseManager.UserUsecase())
+func (p *AppServer) transactionController(rg *gin.RouterGroup) {
+	controller.NewTransactionController(rg, p.usecaseManager.TransactionUsecase(), p.usecaseManager.UserUsecase())
 }
 
 func (p *AppServer) registerController(r *gin.Engine) {
