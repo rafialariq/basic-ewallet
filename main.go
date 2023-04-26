@@ -7,6 +7,7 @@ import (
 	"final_project_easycash/utils"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
@@ -28,12 +29,13 @@ func main() {
 	defer func() {
 		err := db.Close()
 		if err != nil {
-			log.Fatal(err)
+			log.Println("Failed to close DB connection")
 		}
 	}()
 
 	if err != nil {
-		log.Fatal(err)
+		log.Println("Failed to connect to DB")
+		os.Exit(1)
 	} else {
 		log.Println("Connected to DB")
 	}
@@ -44,9 +46,11 @@ func main() {
 
 	router := gin.Default()
 
-	router.POST("/transaction/transfer", transactionController.WithdrawBalance)
+	router.POST("/merchant", transactionController.TransferMoney)
 
-	if err := router.Run(serverPort); err != nil {
-		log.Fatal(err)
+	err = router.Run(serverPort)
+	if err != nil {
+		log.Println("Failed to start server")
+		os.Exit(1)
 	}
 }
