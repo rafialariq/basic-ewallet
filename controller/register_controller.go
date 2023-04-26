@@ -37,10 +37,10 @@ func (r *RegisterController) RegisterHandler(ctx *gin.Context) {
 
 }
 
-func NewRegisterController(u usecase.RegisterService) *RegisterController {
+func NewRegisterController(r *gin.Engine, u usecase.RegisterService) *RegisterController {
 	controller := RegisterController{
 		registerService: u,
 	}
-
+	r.POST("/signup", controller.RegisterHandler)
 	return &controller
 }

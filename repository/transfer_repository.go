@@ -67,7 +67,7 @@ func (t *transferRepo) WithdrawBalance(sender string, receiver string, amount fl
 
 	if err != nil {
 		_, err = t.db.Exec("ROLLBACK;")
-		return err
+		return errors.New("Transaction failed")
 	}
 
 	query = "UPDATE mst_user SET balance = balance - $1 WHERE phone_number = $2;"
@@ -75,13 +75,13 @@ func (t *transferRepo) WithdrawBalance(sender string, receiver string, amount fl
 
 	if err != nil {
 		_, err = t.db.Exec("ROLLBACK;")
-		return err
+		return errors.New("Transaction failed")
 	}
 
 	_, err = t.db.Exec("COMMIT;")
 	if err != nil {
 		_, err = t.db.Exec("ROLLBACK;")
-		return err
+		return errors.New("Transaction failed")
 	}
 
 	return nil
@@ -137,7 +137,7 @@ func (t *transferRepo) TransferBalance(sender string, receiver string, amount fl
 
 	if err != nil {
 		_, err = t.db.Exec("ROLLBACK;")
-		return err
+		return errors.New("Transaction failed")
 	}
 
 	query = "UPDATE mst_user SET balance = balance - $1 WHERE phone_number = $2;"
@@ -145,7 +145,7 @@ func (t *transferRepo) TransferBalance(sender string, receiver string, amount fl
 
 	if err != nil {
 		_, err = t.db.Exec("ROLLBACK;")
-		return err
+		return errors.New("Transaction failed")
 	}
 
 	query = "UPDATE mst_user SET balance = balance + $1 WHERE phone_number = $2;"
@@ -153,13 +153,13 @@ func (t *transferRepo) TransferBalance(sender string, receiver string, amount fl
 
 	if err != nil {
 		_, err = t.db.Exec("ROLLBACK;")
-		return err
+		return errors.New("Transaction failed")
 	}
 
 	_, err = t.db.Exec("COMMIT;")
 	if err != nil {
 		_, err = t.db.Exec("ROLLBACK;")
-		return err
+		return errors.New("Transaction failed")
 	}
 
 	return nil

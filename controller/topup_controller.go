@@ -60,10 +60,11 @@ func (c *TopUpController) TopUpBalance(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, gin.H{"message": "transaction added"})
 }
 
-func NewTopUpController(u usecase.TopUpUsecase, us usecase.UserUsecase) *TopUpController {
+func NewTopUpController(rg *gin.RouterGroup, u usecase.TopUpUsecase, us usecase.UserUsecase) *TopUpController {
 	controller := TopUpController{
 		usecase:     u,
 		usecaseUser: us,
 	}
+	rg.POST("/topup", controller.TopUpBalance)
 	return &controller
 }

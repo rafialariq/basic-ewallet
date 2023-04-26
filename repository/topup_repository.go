@@ -3,6 +3,7 @@ package repository
 import (
 	"errors"
 	"final_project_easycash/model"
+	"fmt"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -49,12 +50,14 @@ func (t *topUpRepo) TopUpBalance(sender string, receiver string, amount float64)
 		return err
 	}
 
+	fmt.Println(senderInDb.Code, amount, receiverInDb.Code)
+
 	query = "INSERT INTO trx_bill (sender_type_id, sender_id, type_id, amount, date, destination_type_id, destination_id) VALUES ($1, $2, $3, $4, $5, $6, $7);"
 	_, err = t.db.Exec(query, 2, senderInDb.Code, 1, amount, time.Now(), 1, receiverInDb.Code)
 
 	if err != nil {
 		_, err = t.db.Exec("ROLLBACK;")
-		return err
+		return errors.New("Transaction failed")
 	}
 
 	query = "UPDATE mst_user SET balance = balance + $1 WHERE phone_number = $2;"
@@ -62,13 +65,13 @@ func (t *topUpRepo) TopUpBalance(sender string, receiver string, amount float64)
 
 	if err != nil {
 		_, err = t.db.Exec("ROLLBACK;")
-		return err
+		return errors.New("Transaction failed")
 	}
 
 	_, err = t.db.Exec("COMMIT;")
 	if err != nil {
 		_, err = t.db.Exec("ROLLBACK;")
-		return err
+		return errors.New("Transaction failed")
 	}
 
 	return nil

@@ -105,10 +105,12 @@ func (c *TransferController) TransferBalance(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, gin.H{"message": "transaction added"})
 }
 
-func NewTransferController(u usecase.TransferUsecase, us usecase.UserUsecase) *TransferController {
+func NewTransferController(rg *gin.RouterGroup, u usecase.TransferUsecase, us usecase.UserUsecase) *TransferController {
 	controller := TransferController{
 		usecase:     u,
 		usecaseUser: us,
 	}
+	rg.POST("/transfer/bank", controller.WithdrawBalance)
+	rg.POST("/transfer/user", controller.TransferBalance)
 	return &controller
 }

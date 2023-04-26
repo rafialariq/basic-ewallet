@@ -31,10 +31,10 @@ func (l *LoginController) LoginHandler(ctx *gin.Context) {
 
 }
 
-func NewLoginController(u usecase.LoginService) *LoginController {
+func NewLoginController(r *gin.Engine, u usecase.LoginService) *LoginController {
 	controller := LoginController{
 		loginService: u,
 	}
-
+	r.POST("/login", controller.LoginHandler)
 	return &controller
 }

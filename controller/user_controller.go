@@ -166,9 +166,13 @@ func (c *UserController) UnregProfile(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"message": "profile successfully deleted"})
 }
 
-func NewUserController(u usecase.UserUsecase) *UserController {
+func NewUserController(rg *gin.RouterGroup, u usecase.UserUsecase) *UserController {
 	controller := UserController{
 		usecase: u,
 	}
+	rg.GET("/profile/:username", controller.CheckProfile)
+	rg.POST("/profile/edit", controller.EditProfile)
+	rg.POST("/profile/edit/photo/:username", controller.EditPhotoProfile)
+	rg.DELETE("/profile/:username", controller.UnregProfile)
 	return &controller
 }
