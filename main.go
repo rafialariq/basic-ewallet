@@ -41,15 +41,19 @@ func main() {
 	}
 
 	fileRepo := repository.NewFileRepository(baseFilePath)
+
 	userRepo := repository.NewUserRepo(db)
 	userUsecase := usecase.NewUserUsecase(userRepo, fileRepo)
 	userController := controller.NewUserController(userUsecase)
+
 	transferRepo := repository.NewTransferRepo(db)
 	transferUsecase := usecase.NewTransferUsecase(transferRepo)
 	transferController := controller.NewTransferController(transferUsecase, userUsecase)
+
 	topUpRepo := repository.NewTopUpRepo(db)
 	topUpUsecase := usecase.NewTopUpUsecase(topUpRepo)
 	topUpController := controller.NewTopUpController(topUpUsecase, userUsecase)
+
 	registerRepo := repository.NewRegisterRepo(db)
 	registerService := usecase.NewRegisterService(registerRepo)
 	registerController := controller.NewRegisterController(registerService)
@@ -57,6 +61,10 @@ func main() {
 	loginRepo := repository.NewLoginRepo(db)
 	loginService := usecase.NewLoginService(loginRepo)
 	loginController := controller.NewLoginController(loginService)
+
+	historyRepo := repository.NewHistoryRepo(db)
+	historyUsecase := usecase.NewHistoryUsecase(historyRepo)
+	historyController := controller.NewHistoryController(historyUsecase)
 
 	router := gin.Default()
 
@@ -70,6 +78,12 @@ func main() {
 	menuRouter.POST("/transfer/bank", transferController.WithdrawBalance)
 	menuRouter.POST("/transfer/user", transferController.TransferBalance)
 	menuRouter.POST("/topup", topUpController.TopUpBalance)
+
+	menuRouter.GET("/history", historyController.FindAllByUser)
+	menuRouter.GET("/history/account/:accountTypeId", historyController.FindByAccountType)
+	menuRouter.GET("/history/type/:typeId", historyController.FindByType)
+	menuRouter.GET("/history/:more_than/:less_than", historyController.FindByAmount)
+
 	router.POST("/signup", registerController.RegisterHandler)
 	router.POST("/login", loginController.LoginHandler)
 
