@@ -95,7 +95,7 @@ func (c *TransactionController) TopUpBalance(ctx *gin.Context) {
 	res := c.usecase.TopUpBalance(bill.SenderId, bill.DestinationId, bill.Amount)
 
 	if res != nil {
-		if res.Error() == "Receiver number not found" || res.Error() == "Sender number not found" || res.Error() == "Balance is not sufficient" {
+		if res.Error() == "Receiver number not found" || res.Error() == "Sender number not found" || res.Error() == "Balance is not sufficient" || res.Error() == "Minimum Transaction Rp 10.000,00" {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": res.Error()})
 			return
 		} else {
@@ -141,7 +141,7 @@ func (c *TransactionController) WithdrawBalance(ctx *gin.Context) {
 	res := c.usecase.WithdrawBalance(bill.SenderId, bill.DestinationId, bill.Amount)
 
 	if res != nil {
-		if res.Error() == "Receiver number not found" || res.Error() == "Sender number not found" || res.Error() == "Balance is not sufficient" {
+		if res.Error() == "Receiver number not found" || res.Error() == "Sender number not found" || res.Error() == "Balance is not sufficient" || res.Error() == "Minimum Transaction Rp 10.000,00" {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": res.Error()})
 			return
 		} else {
@@ -186,7 +186,7 @@ func (c *TransactionController) TransferBalance(ctx *gin.Context) {
 	res := c.usecase.TransferBalance(bill.SenderId, bill.DestinationId, bill.Amount)
 
 	if res != nil {
-		if res.Error() == "Receiver number not found" || res.Error() == "Sender number not found" || res.Error() == "Balance is not sufficient" {
+		if res.Error() == "Receiver number not found" || res.Error() == "Sender number not found" || res.Error() == "Balance is not sufficient" || res.Error() == "Minimum Transaction Rp 10.000,00" {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": res.Error()})
 			return
 		} else {

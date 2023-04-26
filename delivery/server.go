@@ -17,27 +17,29 @@ type AppServer struct {
 }
 
 func (p *AppServer) menu() {
-	menuRoutes := p.engine.Group("/menu")
+	routes := p.engine.Group("/")
+	routes.Use(middleware.LoggingMiddleware())
+	menuRoutes := routes.Group("/menu")
 	menuRoutes.Use(middleware.AuthMiddleware())
 	p.userController(menuRoutes)
 	p.transactionController(menuRoutes)
-	p.registerController(p.engine)
-	p.loginController(p.engine)
+	p.registerController(routes)
+	p.loginController(routes)
 }
 
-func (p *AppServer) userController(rg *gin.RouterGroup) {
-	controller.NewUserController(rg, p.usecaseManager.UserUsecase())
+func (p *AppServer) userController(r *gin.RouterGroup) {
+	controller.NewUserController(r, p.usecaseManager.UserUsecase())
 }
 
 func (p *AppServer) transactionController(rg *gin.RouterGroup) {
 	controller.NewTransactionController(rg, p.usecaseManager.TransactionUsecase(), p.usecaseManager.UserUsecase())
 }
 
-func (p *AppServer) registerController(r *gin.Engine) {
+func (p *AppServer) registerController(r *gin.RouterGroup) {
 	controller.NewRegisterController(r, p.usecaseManager.RegisterUsecase())
 }
 
-func (p *AppServer) loginController(r *gin.Engine) {
+func (p *AppServer) loginController(r *gin.RouterGroup) {
 	controller.NewLoginController(r, p.usecaseManager.LoginUsecase())
 }
 

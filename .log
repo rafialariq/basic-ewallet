@@ -1,0 +1,9 @@
+::1 -  [26/Apr/2023:16:24:45 +0700] "POST /login HTTP/1.1" 200 148 "" "PostmanRuntime/7.32.2" 86.1517ms
+::1 -  [26/Apr/2023:16:25:45 +0700] "POST /login HTTP/1.1" 200 148 "" "PostmanRuntime/7.32.2" 71.4842ms
+::1 -  [26/Apr/2023:16:30:04 +0700] "POST /login HTTP/1.1" 200 148 "" "PostmanRuntime/7.32.2" 71.2331ms
+::1 -  [26/Apr/2023:16:30:18 +0700] "GET /menu/profile/barbarbar HTTP/1.1" 200 146526 "" "PostmanRuntime/7.32.2" 1.7763ms
+::1 -  [26/Apr/2023:16:30:33 +0700] "POST /menu/profile/edit HTTP/1.1" 401 24 "" "PostmanRuntime/7.32.2" 0s
+::1 -  [26/Apr/2023:16:30:41 +0700] "POST /menu/profile/edit HTTP/1.1" 200 28 "" "PostmanRuntime/7.32.2" 85.8133ms
+::1 -  [26/Apr/2023:16:30:52 +0700] "POST /menu/transfer/bank HTTP/1.1" 400 37 "" "PostmanRuntime/7.32.2" 3.8591ms
+::1 -  [26/Apr/2023:16:30:59 +0700] "POST /menu/merchant HTTP/1.1" 500 2 "" "PostmanRuntime/7.32.2" 1.7059ms
+::1 -  [26/Apr/2023:16:31:13 +0700] "POST /menu/transfer/user HTTP/1.1" 400 44 "" "PostmanRuntime/7.32.2" 2.7522ms

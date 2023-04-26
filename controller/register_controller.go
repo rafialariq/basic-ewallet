@@ -37,7 +37,7 @@ func (r *RegisterController) RegisterHandler(ctx *gin.Context) {
 
 }
 
-func NewRegisterController(r *gin.Engine, u usecase.RegisterService) *RegisterController {
+func NewRegisterController(r *gin.RouterGroup, u usecase.RegisterService) *RegisterController {
 	controller := RegisterController{
 		registerService: u,
 	}

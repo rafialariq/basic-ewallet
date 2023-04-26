@@ -31,7 +31,7 @@ func (l *LoginController) LoginHandler(ctx *gin.Context) {
 
 }
 
-func NewLoginController(r *gin.Engine, u usecase.LoginService) *LoginController {
+func NewLoginController(r *gin.RouterGroup, u usecase.LoginService) *LoginController {
 	controller := LoginController{
 		loginService: u,
 	}

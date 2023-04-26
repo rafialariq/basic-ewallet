@@ -3,7 +3,6 @@ package repository
 import (
 	"errors"
 	"final_project_easycash/model"
-	"fmt"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -55,7 +54,6 @@ func (t *transactionRepo) TransferMoney(sender string, receiver string, amount f
 	}
 
 	if err != nil {
-		fmt.Println("receiver error")
 		return err
 	}
 
@@ -279,8 +277,6 @@ func (t *transactionRepo) TopUpBalance(sender string, receiver string, amount fl
 	if err != nil {
 		return err
 	}
-
-	fmt.Println(senderInDb.Code, amount, receiverInDb.Code)
 
 	query = "INSERT INTO trx_bill (sender_type_id, sender_id, type_id, amount, date, destination_type_id, destination_id) VALUES ($1, $2, $3, $4, $5, $6, $7);"
 	_, err = t.db.Exec(query, 2, senderInDb.Code, 1, amount, time.Now(), 1, receiverInDb.Code)
