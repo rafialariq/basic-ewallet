@@ -6,30 +6,30 @@ import (
 )
 
 type HistoryUsecase interface {
-	FindAllByUser(user model.User) ([]model.Bill, error)
-	FindByAccountType(user model.User, accountTypeId int) ([]model.Bill, error)
-	FindByType(user model.User, typeId string) ([]model.Bill, error)
-	FindByAmount(user model.User, moreThan, lessThan float64) ([]model.Bill, error)
+	HistoryByUser(user model.User) ([]model.Bill, error)
+	HistoryWithAccountFilter(user model.User, accountTypeId int) ([]model.Bill, error)
+	HistoryWithTypeFilter(user model.User, typeId string) ([]model.Bill, error)
+	HistoryWithAmountFilter(user model.User, moreThan, lessThan float64) ([]model.Bill, error)
 }
 
 type historyUsecase struct {
 	historyRepo repository.HistoryRepo
 }
 
-func (h *historyUsecase) FindAllByUser(user model.User) ([]model.Bill, error) {
-	return h.historyRepo.GetAllByUser(user)
+func (h *historyUsecase) HistoryByUser(user model.User) ([]model.Bill, error) {
+	return h.historyRepo.GetHistoryByUser(user)
 }
 
-func (h *historyUsecase) FindByAccountType(user model.User, accountTypeId int) ([]model.Bill, error) {
-	return h.historyRepo.GetByAccountType(user, accountTypeId)
+func (h *historyUsecase) HistoryWithAccountFilter(user model.User, accountTypeId int) ([]model.Bill, error) {
+	return h.historyRepo.GetHistoryWithAccountFilter(user, accountTypeId)
 }
 
-func (h *historyUsecase) FindByType(user model.User, typeId string) ([]model.Bill, error) {
-	return h.historyRepo.GetByType(user, typeId)
+func (h *historyUsecase) HistoryWithTypeFilter(user model.User, typeId string) ([]model.Bill, error) {
+	return h.historyRepo.GetHistoryWithTypeFilter(user, typeId)
 }
 
-func (h *historyUsecase) FindByAmount(user model.User, moreThan, lessThan float64) ([]model.Bill, error) {
-	return h.historyRepo.GetByAmount(user, moreThan, lessThan)
+func (h *historyUsecase) HistoryWithAmountFilter(user model.User, moreThan, lessThan float64) ([]model.Bill, error) {
+	return h.historyRepo.GetHistoryWithAmountFilter(user, moreThan, lessThan)
 }
 
 func NewHistoryUsecase(historyRepo repository.HistoryRepo) HistoryUsecase {

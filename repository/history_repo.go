@@ -9,20 +9,20 @@ import (
 )
 
 type HistoryRepo interface {
-	GetAllByUser(user model.User) ([]model.Bill, error)
-	GetByAccountType(user model.User, senderTypeId int) ([]model.Bill, error)
-	GetByType(user model.User, typeId string) ([]model.Bill, error)
-	GetByAmount(user model.User, moreThan, lessThan float64) ([]model.Bill, error)
+	GetHistoryByUser(user model.User) ([]model.Bill, error)
+	GetHistoryWithAccountFilter(user model.User, senderTypeId int) ([]model.Bill, error)
+	GetHistoryWithTypeFilter(user model.User, typeId string) ([]model.Bill, error)
+	GetHistoryWithAmountFilter(user model.User, moreThan, lessThan float64) ([]model.Bill, error)
 }
 
 type historyRepo struct {
 	db *sqlx.DB
 }
 
-func (h *historyRepo) GetAllByUser(user model.User) ([]model.Bill, error) {
+func (h *historyRepo) GetHistoryByUser(user model.User) ([]model.Bill, error) {
 	var historyList []model.Bill
 
-	query := "SELECT id, sender_type_id, sender_id, type_id, amount, destination_type_id, destination_id FROM trx_bill WHERE sender_id = $1 OR destination_id = $2;"
+	query := "SELECT id, sender_type_id, sender_id, type_id, amount, destination_type_id, destination_id FROM trx_bill WHERE (sender_id = $1 OR destination_id = $2);"
 	rows, err := h.db.Query(query, &user.PhoneNumber, &user.PhoneNumber)
 	if err != nil {
 		return historyList, errors.New("gagal 1")
@@ -43,10 +43,10 @@ func (h *historyRepo) GetAllByUser(user model.User) ([]model.Bill, error) {
 	return historyList, nil
 }
 
-func (h *historyRepo) GetByAccountType(user model.User, accountTypeId int) ([]model.Bill, error) {
+func (h *historyRepo) GetHistoryWithAccountFilter(user model.User, accountTypeId int) ([]model.Bill, error) {
 	var historyList []model.Bill
 
-	query := "SELECT id, sender_type_id, sender_id, type_id, amount, date, destination_type_id, destination_id FROM trx_bill WHERE sender_id = $1 OR destination_id = $1 AND sender_type_id = $2 OR destination_type_id = $2;"
+	query := "SELECT id, sender_type_id, sender_id, type_id, amount, destination_type_id, destination_id FROM trx_bill WHERE (sender_id = $1 OR destination_id = $1) AND (sender_type_id = $2 OR destination_type_id = $2);"
 	rows, err := h.db.Query(query, &user.PhoneNumber, &accountTypeId)
 	if err != nil {
 		return historyList, err
@@ -55,7 +55,7 @@ func (h *historyRepo) GetByAccountType(user model.User, accountTypeId int) ([]mo
 
 	for rows.Next() {
 		var history model.Bill
-		err := rows.Scan(&history.Id, &history.SenderTypeId, &history.SenderId, &history.TypeId, &history.Amount, &history.Date, &history.DestinationTypeId, &history.DestinationId)
+		err := rows.Scan(&history.Id, &history.SenderTypeId, &history.SenderId, &history.TypeId, &history.Amount, &history.DestinationTypeId, &history.DestinationId)
 
 		if err != nil {
 			return historyList, err
@@ -67,10 +67,10 @@ func (h *historyRepo) GetByAccountType(user model.User, accountTypeId int) ([]mo
 	return historyList, nil
 }
 
-func (h *historyRepo) GetByType(user model.User, typeId string) ([]model.Bill, error) {
+func (h *historyRepo) GetHistoryWithTypeFilter(user model.User, typeId string) ([]model.Bill, error) {
 	var historyList []model.Bill
 
-	query := "SELECT id, sender_type_id, sender_id, type_id, amount, date, destination_type_id, destination_id FROM trx_bill WHERE sender_id = $1 OR destination_id = $1 AND type_id = $2;"
+	query := "SELECT id, sender_type_id, sender_id, type_id, amount, destination_type_id, destination_id FROM trx_bill WHERE (sender_id = $1 OR destination_id = $1) AND type_id = $2;"
 	rows, err := h.db.Query(query, &user.PhoneNumber, &typeId)
 	if err != nil {
 		return historyList, err
@@ -79,7 +79,7 @@ func (h *historyRepo) GetByType(user model.User, typeId string) ([]model.Bill, e
 
 	for rows.Next() {
 		var history model.Bill
-		err := rows.Scan(&history.Id, &history.SenderTypeId, &history.SenderId, &history.TypeId, &history.Amount, &history.Date, &history.DestinationTypeId, &history.DestinationId)
+		err := rows.Scan(&history.Id, &history.SenderTypeId, &history.SenderId, &history.TypeId, &history.Amount, &history.DestinationTypeId, &history.DestinationId)
 
 		if err != nil {
 			return historyList, err
@@ -91,10 +91,10 @@ func (h *historyRepo) GetByType(user model.User, typeId string) ([]model.Bill, e
 	return historyList, nil
 }
 
-func (h *historyRepo) GetByAmount(user model.User, moreThan, lessThan float64) ([]model.Bill, error) {
+func (h *historyRepo) GetHistoryWithAmountFilter(user model.User, moreThan, lessThan float64) ([]model.Bill, error) {
 	var historyList []model.Bill
 
-	query := "SELECT id, sender_type_id, sender_id, type_id, amount, date, destination_type_id, destination_id FROM trx_bill WHERE sender_id = $1 OR destination_id = $1 AND amount > $2 AND amount < $3;"
+	query := "SELECT id, sender_type_id, sender_id, type_id, amount, destination_type_id, destination_id FROM trx_bill WHERE (sender_id = $1 OR destination_id = $1) AND amount >= $2 AND amount <= $3;"
 	rows, err := h.db.Query(query, &user.PhoneNumber, &moreThan, &lessThan)
 	if err != nil {
 		return historyList, err
@@ -103,7 +103,7 @@ func (h *historyRepo) GetByAmount(user model.User, moreThan, lessThan float64) (
 
 	for rows.Next() {
 		var history model.Bill
-		err := rows.Scan(&history.Id, &history.SenderTypeId, &history.SenderId, &history.TypeId, &history.Amount, &history.Date, &history.DestinationTypeId, &history.DestinationId)
+		err := rows.Scan(&history.Id, &history.SenderTypeId, &history.SenderId, &history.TypeId, &history.Amount, &history.DestinationTypeId, &history.DestinationId)
 
 		if err != nil {
 			return historyList, err

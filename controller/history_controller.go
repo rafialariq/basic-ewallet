@@ -21,7 +21,7 @@ func (h *HistoryController) FindAllByUser(ctx *gin.Context) {
 		return
 	}
 
-	res, err := h.historyUsecase.FindAllByUser(user)
+	res, err := h.historyUsecase.HistoryByUser(user)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -44,7 +44,7 @@ func (h *HistoryController) FindByAccountType(ctx *gin.Context) {
 		return
 	}
 
-	res, err := h.historyUsecase.FindByAccountType(user, accountTypeId)
+	res, err := h.historyUsecase.HistoryWithAccountFilter(user, accountTypeId)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -63,7 +63,7 @@ func (h *HistoryController) FindByType(ctx *gin.Context) {
 
 	typeId := ctx.Param("typeId")
 
-	res, err := h.historyUsecase.FindByType(user, typeId)
+	res, err := h.historyUsecase.HistoryWithTypeFilter(user, typeId)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -91,7 +91,7 @@ func (h *HistoryController) FindByAmount(ctx *gin.Context) {
 		return
 	}
 
-	res, err := h.historyUsecase.FindByAmount(user, moreThan, lessThan)
+	res, err := h.historyUsecase.HistoryWithAmountFilter(user, moreThan, lessThan)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
