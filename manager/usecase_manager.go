@@ -9,6 +9,7 @@ type UsecaseManager interface {
 	RegisterUsecase() usecase.RegisterService
 	LoginUsecase() usecase.LoginService
 	TransactionUsecase() usecase.TransactionUsecase
+	HistoryUsecase() usecase.HistoryUsecase
 }
 
 type usecaseManager struct {
@@ -29,6 +30,10 @@ func (u *usecaseManager) RegisterUsecase() usecase.RegisterService {
 
 func (u *usecaseManager) LoginUsecase() usecase.LoginService {
 	return usecase.NewLoginService(u.repoManager.LoginRepo())
+}
+
+func (u *usecaseManager) HistoryUsecase() usecase.HistoryUsecase {
+	return usecase.NewHistoryUsecase(u.repoManager.HistoryRepo())
 }
 
 func NewUsecaseManager(r RepoManager) UsecaseManager {

@@ -27,13 +27,6 @@ func (r *registerRepo) UserRegister(newUser *model.User) (bool, string) {
 		return false, "failed to create user"
 	}
 
-	query = "INSERT INTO mst_transaction_codes (code) VALUES ($1);"
-	_, err = r.db.Exec(query, &newUser.PhoneNumber)
-	if err != nil {
-		log.Println(err)
-		return false, "failed to create user"
-	}
-
 	return true, "user created successfully"
 }
 

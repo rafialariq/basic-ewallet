@@ -10,6 +10,7 @@ type RepoManager interface {
 	RegisterRepo() repository.RegisterRepo
 	LoginRepo() repository.LoginRepo
 	TransactionRepo() repository.TransactionRepo
+	HistoryRepo() repository.HistoryRepo
 }
 
 type repoManager struct {
@@ -34,6 +35,10 @@ func (r *repoManager) RegisterRepo() repository.RegisterRepo {
 
 func (r *repoManager) LoginRepo() repository.LoginRepo {
 	return repository.NewLoginRepo(r.infraManager.ConnectDb())
+}
+
+func (r *repoManager) HistoryRepo() repository.HistoryRepo {
+	return repository.NewHistoryRepo(r.infraManager.ConnectDb())
 }
 
 func NewRepoManager(manager InfraManager) RepoManager {

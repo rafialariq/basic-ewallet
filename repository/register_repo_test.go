@@ -22,9 +22,6 @@ func (suite *RegisterRepositoryTestSuite) TestUserRegister_Success() {
 	suite.mockSql.ExpectExec(`INSERT INTO mst_user \(username, email, phone_number, password\) VALUES \(\$1, \$2, \$3, \$4\);`).
 		WithArgs(newUser.Username, newUser.Email, newUser.PhoneNumber, newUser.Password).
 		WillReturnResult(sqlmock.NewResult(0, 1))
-	suite.mockSql.ExpectExec(`INSERT INTO mst_transaction_codes \(code\) VALUES \(\$1\)`).
-		WithArgs(newUser.PhoneNumber).
-		WillReturnResult(sqlmock.NewResult(0, 1))
 	repo := NewRegisterRepo(suite.mockDb)
 	actual, err := repo.UserRegister(newUser)
 
@@ -32,23 +29,9 @@ func (suite *RegisterRepositoryTestSuite) TestUserRegister_Success() {
 	assert.Equal(suite.T(), true, actual)
 }
 
-func (suite *RegisterRepositoryTestSuite) TestUserRegisterFirstQuery_Failed() {
+func (suite *RegisterRepositoryTestSuite) TestUserRegister_Failed() {
 	newUser := &dummyUsers[0]
 	suite.mockSql.ExpectExec(`INSERT INTO mst_user \(username, email, phone_number, password\) VALUES \(\$1, \$2, \$3, \$4\);`).
-		WillReturnError(errors.New("Failed"))
-	repo := NewRegisterRepo(suite.mockDb)
-	actual, err := repo.UserRegister(newUser)
-
-	assert.Equal(suite.T(), "failed to create user", err)
-	assert.Equal(suite.T(), false, actual)
-}
-
-func (suite *RegisterRepositoryTestSuite) TestUserRegisterSecondQuery_Failed() {
-	newUser := &dummyUsers[1]
-	suite.mockSql.ExpectExec(`INSERT INTO mst_user \(username, email, phone_number, password\) VALUES \(\$1, \$2, \$3, \$4\);`).
-		WithArgs(newUser.Username, newUser.Email, newUser.PhoneNumber, newUser.Password).
-		WillReturnResult(sqlmock.NewResult(0, 1))
-	suite.mockSql.ExpectExec(`INSERT INTO mst_transaction_codes \(code\) VALUES \(\$1\)`).
 		WillReturnError(errors.New("Failed"))
 	repo := NewRegisterRepo(suite.mockDb)
 	actual, err := repo.UserRegister(newUser)

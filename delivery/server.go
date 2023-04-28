@@ -23,6 +23,7 @@ func (p *AppServer) menu() {
 	p.transactionController(menuRoutes)
 	p.registerController(p.engine)
 	p.loginController(p.engine)
+	p.historyController(menuRoutes)
 }
 
 func (p *AppServer) userController(rg *gin.RouterGroup) {
@@ -39,6 +40,10 @@ func (p *AppServer) registerController(r *gin.Engine) {
 
 func (p *AppServer) loginController(r *gin.Engine) {
 	controller.NewLoginController(r, p.usecaseManager.LoginUsecase())
+}
+
+func (p *AppServer) historyController(rg *gin.RouterGroup) {
+	controller.NewHistoryController(rg, p.usecaseManager.HistoryUsecase())
 }
 
 func (p *AppServer) Run() {
