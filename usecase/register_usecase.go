@@ -28,6 +28,7 @@ func (r *registerService) UserSignup(newUser *model.User) (bool, string) {
 	} else if r.registerRepo.RegisterValidate(newUser) {
 		return false, "user already exist"
 	}
+	newUser.Password = utils.PasswordHashing(newUser.Password)
 
 	user, res := r.registerRepo.UserRegister(newUser)
 

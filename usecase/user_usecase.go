@@ -47,6 +47,7 @@ func (u *userUsecase) EditProfile(updatedUserData *model.User) error {
 	} else if !utils.ValidatePhoneNumber(updatedUserData.PhoneNumber) {
 		return errors.New("invalid phone number")
 	}
+	updatedUserData.Password = utils.PasswordHashing(updatedUserData.Password)
 	return u.userRepo.UpdateUserById(updatedUserData)
 }
 

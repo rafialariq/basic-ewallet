@@ -5,7 +5,6 @@ import (
 	"log"
 
 	"final_project_easycash/model"
-	"final_project_easycash/utils"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -21,10 +20,8 @@ type registerRepo struct {
 }
 
 func (r *registerRepo) UserRegister(newUser *model.User) (bool, string) {
-	hashedPassword := utils.PasswordHashing(newUser.Password)
-
 	query := "INSERT INTO mst_user (username, email, phone_number, password) VALUES ($1, $2, $3, $4);"
-	_, err := r.db.Exec(query, &newUser.Username, &newUser.Email, &newUser.PhoneNumber, &hashedPassword)
+	_, err := r.db.Exec(query, &newUser.Username, &newUser.Email, &newUser.PhoneNumber, &newUser.Password)
 	if err != nil {
 		log.Println(err)
 		return false, "failed to create user"
