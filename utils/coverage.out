@@ -1,0 +1,19 @@
+mode: set
+final_project_easycash/utils/dotenv.go:10.32,11.46 1 0
+final_project_easycash/utils/dotenv.go:11.46,13.3 1 0
+final_project_easycash/utils/dotenv.go:15.2,15.23 1 0
+final_project_easycash/utils/hashing.go:9.46,11.16 2 1
+final_project_easycash/utils/hashing.go:11.16,13.3 1 0
+final_project_easycash/utils/hashing.go:15.2,15.31 1 1
+final_project_easycash/utils/validation.go:8.39,10.26 1 1
+final_project_easycash/utils/validation.go:10.26,11.74 1 1
+final_project_easycash/utils/validation.go:11.74,13.4 1 1
+final_project_easycash/utils/validation.go:16.2,17.36 2 1
+final_project_easycash/utils/validation.go:17.36,19.3 1 1
+final_project_easycash/utils/validation.go:21.2,21.14 1 1
+final_project_easycash/utils/validation.go:24.45,25.45 1 1
+final_project_easycash/utils/validation.go:25.45,27.3 1 1
+final_project_easycash/utils/validation.go:29.2,29.13 1 1
+final_project_easycash/utils/validation.go:32.45,35.40 2 1
+final_project_easycash/utils/validation.go:35.40,37.3 1 1
+final_project_easycash/utils/validation.go:39.2,41.19 2 1

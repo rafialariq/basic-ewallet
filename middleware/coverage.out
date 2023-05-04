@@ -1,0 +1,9 @@
+mode: set
+final_project_easycash/middleware/auth.go:10.39,11.32 1 1
+final_project_easycash/middleware/auth.go:11.32,14.24 2 1
+final_project_easycash/middleware/auth.go:14.24,18.4 3 1
+final_project_easycash/middleware/auth.go:20.3,20.84 1 1
+final_project_easycash/middleware/auth.go:20.84,22.4 1 0
+final_project_easycash/middleware/auth.go:24.3,24.33 1 1
+final_project_easycash/middleware/auth.go:24.33,28.4 3 1
+final_project_easycash/middleware/auth.go:30.3,33.13 3 0
