@@ -166,6 +166,42 @@ func (c *TransactionController) TransferBalance(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"message": "transaction added"})
 }
 
+func (c *TransactionController) SplitBill(ctx *gin.Context) {
+	var req struct {
+		Sender   string    `json:"sender_id"`
+		Receiver []string  `json:"destination_id"`
+		Amount   []float64 `json:"amount"`
+	}
+
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if len(req.Receiver) == 0 {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "must provide at least one receiver"})
+		return
+	}
+
+	totalAmount := 0.0
+	for _, amount := range req.Amount {
+		if amount <= 0 {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid amount"})
+			return
+		}
+		totalAmount += amount
+	}
+
+	err := c.usecase.SplitBill(req.Sender, req.Receiver, req.Amount)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, gin.H{"message": "bill split successfully"})
+}
+
 func NewTransactionController(rg *gin.RouterGroup, u usecase.TransactionUsecase, us usecase.UserUsecase) *TransactionController {
 	controller := TransactionController{
 		usecase:     u,
@@ -175,5 +211,6 @@ func NewTransactionController(rg *gin.RouterGroup, u usecase.TransactionUsecase,
 	rg.POST("/transfer/bank", controller.WithdrawBalance)
 	rg.POST("/transfer/user", controller.TransferBalance)
 	rg.POST("/merchant", controller.TransferMoney)
+	rg.POST("/split-bill", controller.SplitBill)
 	return &controller
 }

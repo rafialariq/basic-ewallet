@@ -12,6 +12,7 @@ type TransactionUsecase interface {
 	TopUpBalance(sender string, receiver string, amount float64) error
 	WithdrawBalance(sender string, receiver string, amount float64) error
 	TransferBalance(sender string, receiver string, amount float64) error
+	SplitBill(sender string, receiver []string, amount []float64) error
 }
 
 type transactionUsecase struct {
@@ -19,19 +20,11 @@ type transactionUsecase struct {
 }
 
 func (u *transactionUsecase) TransferMoney(sender string, receiver string, amount float64) error {
-	envFilePath := "../.env"
-	minTransaction, err := strconv.ParseFloat(utils.DotEnv("MINIMUM_TRANSACTION", envFilePath), 64)
-	if err != nil {
-		return err
-	}
-	if amount < minTransaction {
-		return errors.New("Minimum Transaction Rp 10.000,00")
-	}
 	return u.transactionRepo.TransferMoney(sender, receiver, amount)
 }
 
 func (u *transactionUsecase) TopUpBalance(sender string, receiver string, amount float64) error {
-	envFilePath := "../.env"
+	envFilePath := ".env"
 	minTransaction, err := strconv.ParseFloat(utils.DotEnv("MINIMUM_TRANSACTION", envFilePath), 64)
 	if err != nil {
 		return err
@@ -48,7 +41,7 @@ func (u *transactionUsecase) TopUpBalance(sender string, receiver string, amount
 }
 
 func (u *transactionUsecase) WithdrawBalance(sender string, receiver string, amount float64) error {
-	envFilePath := "../.env"
+	envFilePath := ".env"
 	minTransaction, err := strconv.ParseFloat(utils.DotEnv("MINIMUM_TRANSACTION", envFilePath), 64)
 	if err != nil {
 		return err
@@ -65,7 +58,7 @@ func (u *transactionUsecase) WithdrawBalance(sender string, receiver string, amo
 }
 
 func (u *transactionUsecase) TransferBalance(sender string, receiver string, amount float64) error {
-	envFilePath := "../.env"
+	envFilePath := ".env"
 	minTransaction, err := strconv.ParseFloat(utils.DotEnv("MINIMUM_TRANSACTION", envFilePath), 64)
 	if err != nil {
 		return err
@@ -74,6 +67,10 @@ func (u *transactionUsecase) TransferBalance(sender string, receiver string, amo
 		return errors.New("Minimum Transaction Rp 10.000,00")
 	}
 	return u.transactionRepo.TransferBalance(sender, receiver, amount)
+}
+
+func (u *transactionUsecase) SplitBill(sender string, receiver []string, amount []float64) error {
+	return u.transactionRepo.SplitBill(sender, receiver, amount)
 }
 
 func NewTransactionUsecase(transactionRepo repository.TransactionRepo) TransactionUsecase {

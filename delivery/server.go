@@ -18,7 +18,7 @@ type AppServer struct {
 
 func (p *AppServer) menu() {
 	routes := p.engine.Group("/")
-	routes.Use(middleware.LoggingMiddleware("../.log"))
+	routes.Use(middleware.LoggingMiddleware(".log"))
 	menuRoutes := routes.Group("/menu")
 	menuRoutes.Use(middleware.AuthMiddleware())
 	p.userController(menuRoutes)

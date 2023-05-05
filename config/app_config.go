@@ -21,7 +21,7 @@ type AppConfig struct {
 }
 
 func (c *AppConfig) readConfigFile() {
-	envFilePath := "../.env"
+	envFilePath := ".env"
 	c.DbConfig = DbConfig{
 		Host:     utils.DotEnv("DB_HOST", envFilePath),
 		Port:     utils.DotEnv("DB_PORT", envFilePath),

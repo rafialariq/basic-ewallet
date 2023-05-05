@@ -31,3 +31,5 @@
 ::1 -  [05/May/2023:13:01:06 +0700] "GET /menu/history/type/2 HTTP/1.1" 200 4 "" "PostmanRuntime/7.32.2" 507.1µs
 ::1 -  [05/May/2023:13:01:11 +0700] "GET /menu/history/type/1 HTTP/1.1" 200 607 "" "PostmanRuntime/7.32.2" 506.4µs
 ::1 -  [05/May/2023:13:01:20 +0700] "GET /menu/history/200/9000 HTTP/1.1" 200 203 "" "PostmanRuntime/7.32.2" 5.3195ms
+::1 -  [05/May/2023:16:14:06 +0700] "POST /login HTTP/1.1" 200 148 "" "PostmanRuntime/7.32.2" 78.5162ms
+::1 -  [05/May/2023:16:17:12 +0700] "POST /menu/split-bill HTTP/1.1" 201 37 "" "PostmanRuntime/7.32.2" 16.8364ms

@@ -15,11 +15,19 @@ type TransactionRepo interface {
 	WithdrawBalance(sender string, receiver string, amount float64) error
 	TransferBalance(sender string, receiver string, amount float64) error
 	TopUpBalance(sender string, receiver string, amount float64) error
+	SplitBill(sender string, receiver []string, amount []float64) error
+	//PayBill(receiver string, idTransaction string) error
 }
 
 type transactionRepo struct {
 	db *sqlx.DB
 }
+
+var (
+	ErrBillNotFound        = errors.New("bill not found")
+	ErrBillPaid            = errors.New("bill has already been paid")
+	ErrInsufficientBalance = errors.New("insufficient balance")
+)
 
 func (t *transactionRepo) TransferMoney(sender string, receiver string, amount float64) error {
 	var balance float64
@@ -294,6 +302,66 @@ func (t *transactionRepo) TopUpBalance(sender string, receiver string, amount fl
 	if err != nil {
 		_, err = t.db.Exec("ROLLBACK;")
 		return errors.New("Transaction failed 3")
+	}
+
+	return nil
+}
+
+func (t *transactionRepo) SplitBill(sender string, receiver []string, amount []float64) error {
+	var balance float64
+	var senderInDb model.User
+	var receiverInDb model.User
+
+	tx, err := t.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	row := tx.QueryRow(`SELECT balance FROM mst_user WHERE phone_number = $1`, sender)
+	err = row.Scan(&balance)
+	if err != nil {
+		return err
+	}
+
+	totalAmount := 0.0
+	for _, amount := range amount {
+		totalAmount += amount
+	}
+
+	if balance < totalAmount {
+		return errors.New("Balance is not sufficient")
+	}
+
+	row = tx.QueryRow(`SELECT phone_number FROM mst_user WHERE phone_number = $1`, sender)
+	err = row.Scan(&senderInDb.PhoneNumber)
+	if senderInDb.PhoneNumber == "" {
+		return errors.New("Sender number not found")
+	}
+	if err != nil {
+		return err
+	}
+
+	for i, receiver := range receiver {
+		row = tx.QueryRow(`SELECT phone_number FROM mst_user WHERE phone_number = $1`, receiver)
+		err = row.Scan(&receiverInDb.PhoneNumber)
+		if receiverInDb.PhoneNumber == "" {
+			return errors.New(fmt.Sprintf("Receiver number at index %d not found", i))
+		}
+		if err != nil {
+			return err
+		}
+
+		query := "INSERT INTO trx_bill (sender_type_id, sender_id, type_id, amount, date, destination_type_id, destination_id, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8);"
+		_, err = tx.Exec(query, 1, senderInDb.PhoneNumber, 4, amount[i], time.Now(), 1, receiverInDb.PhoneNumber, 1)
+		if err != nil {
+			return err
+		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
 	}
 
 	return nil

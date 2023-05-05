@@ -1,6 +1,8 @@
 package model
 
-import "time"
+import (
+	"time"
+)
 
 type Bill struct {
 	Id                int       `json:"id"`
@@ -14,3 +16,28 @@ type Bill struct {
 	DestinationId     string    `json:"destination_id"`
 	Status            int       `json:"status"`
 }
+
+/*func (b *Bill) GetDestinationId() []string {
+	fmt.Println(b)
+	if b.DestinationId == nil {
+		return []string{}
+	}
+
+	if ids, ok := b.DestinationId.([]string); ok {
+		return ids
+	}
+
+	return []string{b.DestinationId.(string)}
+}
+
+func (b *Bill) GetAmount() []float64 {
+	if b.Amount == nil {
+		return []float64{}
+	}
+
+	if amt, ok := b.Amount.([]float64); ok {
+		return amt
+	}
+
+	return []float64{b.Amount.(float64)}
+}*/
