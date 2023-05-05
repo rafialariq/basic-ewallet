@@ -47,6 +47,8 @@ func main() {
 	router := gin.Default()
 
 	router.POST("/merchant", transactionController.TransferMoney)
+	router.POST("/split-bill", transactionController.SplitBill)
+	router.POST("/PayBill", transactionController.PayBill)
 
 	err = router.Run(serverPort)
 	if err != nil {
