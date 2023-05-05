@@ -7,8 +7,5 @@ import (
 )
 
 func main() {
-
-	// f, _ := os.Create(".log")
-	// gin.DefaultWriter = io.MultiWriter(f, os.Stdout)
 	delivery.Server().Run()
 }

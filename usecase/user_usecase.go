@@ -42,13 +42,16 @@ func (u *userUsecase) CheckProfile(username string) (model.User, error) {
 }
 
 func (u *userUsecase) EditProfile(updatedUserData *model.User) error {
-	if utils.ValidateEmail(updatedUserData.Email) {
+	validateEmail := utils.ValidateEmail(updatedUserData.Email)
+	validatePhoneNumber := utils.ValidatePhoneNumber(updatedUserData.PhoneNumber)
+	if validateEmail {
 		return errors.New("invalid email")
-	} else if !utils.ValidatePhoneNumber(updatedUserData.PhoneNumber) {
+	} else if !validatePhoneNumber {
 		return errors.New("invalid phone number")
+	} else {
+		updatedUserData.Password = utils.PasswordHashing(updatedUserData.Password)
+		return u.userRepo.UpdateUserById(updatedUserData)
 	}
-	updatedUserData.Password = utils.PasswordHashing(updatedUserData.Password)
-	return u.userRepo.UpdateUserById(updatedUserData)
 }
 
 func (u *userUsecase) EditPhotoProfile(username string, fileExt string, file *multipart.File) error {

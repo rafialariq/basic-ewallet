@@ -8,7 +8,7 @@ import (
 )
 
 func DotEnv(key string) string {
-	if err := godotenv.Load(".env"); err != nil {
+	if err := godotenv.Load("../.env"); err != nil {
 		log.Fatalln("Error loading .env file")
 	}
 

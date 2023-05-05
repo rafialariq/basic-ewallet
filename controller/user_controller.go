@@ -1,8 +1,10 @@
 package controller
 
 import (
+	"encoding/json"
 	"final_project_easycash/model"
 	"final_project_easycash/usecase"
+	"io/ioutil"
 	"net/http"
 	"strings"
 
@@ -15,15 +17,15 @@ type UserController struct {
 }
 
 func (c *UserController) CheckProfile(ctx *gin.Context) {
-	claims, exists := ctx.Get("claims")
+	claims, exists := ctx.Keys["claims"].(jwt.MapClaims)
 	if !exists {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "missing claims"})
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "missing claims"})
 		return
 	}
 
-	usernameToken, ok := claims.(jwt.MapClaims)["username"].(string)
+	usernameToken, ok := claims["username"].(string)
 	if !ok {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "invalid claims"})
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "invalid claims"})
 		return
 	}
 
@@ -47,26 +49,31 @@ func (c *UserController) CheckProfile(ctx *gin.Context) {
 			return
 		}
 	}
-
 	ctx.JSON(http.StatusOK, res)
 }
 
 func (c *UserController) EditProfile(ctx *gin.Context) {
-	var user model.User
-
-	if err := ctx.ShouldBind(&user); err != nil {
+	ctx.Header("Content-Type", "application/json")
+	rawBody, err := ioutil.ReadAll(ctx.Request.Body)
+	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	var user model.User
+	if err := json.Unmarshal(rawBody, &user); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
 	claims, exists := ctx.Get("claims")
 	if !exists {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "missing claims"})
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "missing claims"})
 		return
 	}
 
 	usernameToken, ok := claims.(jwt.MapClaims)["username"].(string)
 	if !ok {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "invalid claims"})
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "invalid claims"})
 		return
 	}
 
@@ -75,7 +82,7 @@ func (c *UserController) EditProfile(ctx *gin.Context) {
 		return
 	}
 
-	err := c.usecase.EditProfile(&user)
+	err = c.usecase.EditProfile(&user)
 
 	if err != nil {
 		if err.Error() == "invalid email" || err.Error() == "invalid phone number" {
@@ -142,13 +149,13 @@ func (c *UserController) UnregProfile(ctx *gin.Context) {
 
 	claims, exists := ctx.Get("claims")
 	if !exists {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "missing claims"})
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "missing claims"})
 		return
 	}
 
 	usernameToken, ok := claims.(jwt.MapClaims)["username"].(string)
 	if !ok {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "invalid claims"})
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "invalid claims"})
 		return
 	}
 
