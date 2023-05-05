@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func LoggingMiddleware() gin.HandlerFunc {
+func LoggingMiddleware(logFilePath string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		logger := gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
 			logMsg := fmt.Sprintf("%s - %s [%s] \"%s %s %s\" %d %d \"%s\" \"%s\" %s\n",
@@ -25,7 +25,7 @@ func LoggingMiddleware() gin.HandlerFunc {
 				param.Latency,
 			)
 
-			file, err := os.OpenFile(".log", os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
+			file, err := os.OpenFile(logFilePath, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
 			if err != nil {
 				panic(err)
 			}

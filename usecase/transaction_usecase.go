@@ -19,7 +19,8 @@ type transactionUsecase struct {
 }
 
 func (u *transactionUsecase) TransferMoney(sender string, receiver string, amount float64) error {
-	minTransaction, err := strconv.ParseFloat(utils.DotEnv("MINIMUM_TRANSACTION"), 64)
+	envFilePath := "../.env"
+	minTransaction, err := strconv.ParseFloat(utils.DotEnv("MINIMUM_TRANSACTION", envFilePath), 64)
 	if err != nil {
 		return err
 	}
@@ -30,14 +31,15 @@ func (u *transactionUsecase) TransferMoney(sender string, receiver string, amoun
 }
 
 func (u *transactionUsecase) TopUpBalance(sender string, receiver string, amount float64) error {
-	minTransaction, err := strconv.ParseFloat(utils.DotEnv("MINIMUM_TRANSACTION"), 64)
+	envFilePath := "../.env"
+	minTransaction, err := strconv.ParseFloat(utils.DotEnv("MINIMUM_TRANSACTION", envFilePath), 64)
 	if err != nil {
 		return err
 	}
 	if amount < minTransaction {
 		return errors.New("Minimum Transaction Rp 10.000,00")
 	}
-	adminFee, err := strconv.ParseFloat(utils.DotEnv("ADMIN_FEE_TOPUP"), 64)
+	adminFee, err := strconv.ParseFloat(utils.DotEnv("ADMIN_FEE_TOPUP", envFilePath), 64)
 	if err != nil {
 		return err
 	}
@@ -46,14 +48,15 @@ func (u *transactionUsecase) TopUpBalance(sender string, receiver string, amount
 }
 
 func (u *transactionUsecase) WithdrawBalance(sender string, receiver string, amount float64) error {
-	minTransaction, err := strconv.ParseFloat(utils.DotEnv("MINIMUM_TRANSACTION"), 64)
+	envFilePath := "../.env"
+	minTransaction, err := strconv.ParseFloat(utils.DotEnv("MINIMUM_TRANSACTION", envFilePath), 64)
 	if err != nil {
 		return err
 	}
 	if amount < minTransaction {
 		return errors.New("Minimum Transaction Rp 10.000,00")
 	}
-	adminFee, err := strconv.ParseFloat(utils.DotEnv("ADMIN_FEE_WITHDRAWAL"), 64)
+	adminFee, err := strconv.ParseFloat(utils.DotEnv("ADMIN_FEE_WITHDRAWAL", envFilePath), 64)
 	if err != nil {
 		return err
 	}
@@ -62,7 +65,8 @@ func (u *transactionUsecase) WithdrawBalance(sender string, receiver string, amo
 }
 
 func (u *transactionUsecase) TransferBalance(sender string, receiver string, amount float64) error {
-	minTransaction, err := strconv.ParseFloat(utils.DotEnv("MINIMUM_TRANSACTION"), 64)
+	envFilePath := "../.env"
+	minTransaction, err := strconv.ParseFloat(utils.DotEnv("MINIMUM_TRANSACTION", envFilePath), 64)
 	if err != nil {
 		return err
 	}

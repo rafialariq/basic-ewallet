@@ -21,19 +21,20 @@ type AppConfig struct {
 }
 
 func (c *AppConfig) readConfigFile() {
+	envFilePath := "../.env"
 	c.DbConfig = DbConfig{
-		Host:     utils.DotEnv("DB_HOST"),
-		Port:     utils.DotEnv("DB_PORT"),
-		User:     utils.DotEnv("DB_USER"),
-		Password: utils.DotEnv("DB_PASSWORD"),
-		Name:     utils.DotEnv("DB_NAME"),
-		SslMode:  utils.DotEnv("SSL_MODE"),
+		Host:     utils.DotEnv("DB_HOST", envFilePath),
+		Port:     utils.DotEnv("DB_PORT", envFilePath),
+		User:     utils.DotEnv("DB_USER", envFilePath),
+		Password: utils.DotEnv("DB_PASSWORD", envFilePath),
+		Name:     utils.DotEnv("DB_NAME", envFilePath),
+		SslMode:  utils.DotEnv("SSL_MODE", envFilePath),
 	}
 	c.ApiConfig = ApiConfig{
-		ServerPort: utils.DotEnv("SERVER_PORT"),
+		ServerPort: utils.DotEnv("SERVER_PORT", envFilePath),
 	}
 	c.StorageConfig = StorageConfig{
-		BaseFilePath: utils.DotEnv("BASE_FILE_PATH"),
+		BaseFilePath: utils.DotEnv("BASE_FILE_PATH", envFilePath),
 	}
 }
 

@@ -67,8 +67,8 @@ func (t *transactionRepo) TransferMoney(sender string, receiver string, amount f
 		return err
 	}
 
-	query = "INSERT INTO trx_bill (sender_type_id, sender_id, type_id, amount, date, destination_type_id, destination_id, status_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8);"
-	_, err = t.db.Exec(query, 1, senderInDb.PhoneNumber, 2, amount, time.Now(), 3, merchantInDb.MerchantCode, 2)
+	query = "INSERT INTO trx_bill (sender_type_id, sender_id, type_id, amount, date, destination_type_id, destination_id, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8);"
+	_, err = t.db.Exec(query, 1, senderInDb.PhoneNumber, 2, amount, time.Now().Round(time.Second), 3, merchantInDb.MerchantCode, 2)
 
 	if err != nil {
 		log.Print(err)
@@ -145,8 +145,8 @@ func (t *transactionRepo) WithdrawBalance(sender string, receiver string, amount
 		return err
 	}
 
-	query = "INSERT INTO trx_bill (sender_type_id, sender_id, type_id, amount, date, destination_type_id, destination_id, status_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8);"
-	_, err = t.db.Exec(query, senderType, senderInDb.PhoneNumber, transactionType, amount, time.Now(), receiverType, receiverInDb.BankNumber, statusType)
+	query = "INSERT INTO trx_bill (sender_type_id, sender_id, type_id, amount, date, destination_type_id, destination_id, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8);"
+	_, err = t.db.Exec(query, senderType, senderInDb.PhoneNumber, transactionType, amount, time.Now().Round(time.Second), receiverType, receiverInDb.BankNumber, statusType)
 
 	if err != nil {
 		_, err = t.db.Exec("ROLLBACK;")
@@ -211,8 +211,8 @@ func (t *transactionRepo) TransferBalance(sender string, receiver string, amount
 		return err
 	}
 
-	query = "INSERT INTO trx_bill (sender_type_id, sender_id, type_id, amount, date, destination_type_id, destination_id, status_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8);"
-	_, err = t.db.Exec(query, senderType, senderInDb.PhoneNumber, transactionType, amount, time.Now(), receiverType, receiverInDb.PhoneNumber, statusType)
+	query = "INSERT INTO trx_bill (sender_type_id, sender_id, type_id, amount, date, destination_type_id, destination_id, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8);"
+	_, err = t.db.Exec(query, senderType, senderInDb.PhoneNumber, transactionType, amount, time.Now().Round(time.Second), receiverType, receiverInDb.PhoneNumber, statusType)
 
 	if err != nil {
 		_, err = t.db.Exec("ROLLBACK;")
@@ -273,8 +273,8 @@ func (t *transactionRepo) TopUpBalance(sender string, receiver string, amount fl
 		return err
 	}
 
-	query = "INSERT INTO trx_bill (sender_type_id, sender_id, type_id, amount, date, destination_type_id, destination_id, status_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8);"
-	_, err = t.db.Exec(query, senderType, senderInDb.BankNumber, transactionType, amount, time.Now(), receiverType, receiverInDb.PhoneNumber, statusType)
+	query = "INSERT INTO trx_bill (sender_type_id, sender_id, type_id, amount, date, destination_type_id, destination_id, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8);"
+	_, err = t.db.Exec(query, senderType, senderInDb.BankNumber, transactionType, amount, time.Now().Round(time.Second), receiverType, receiverInDb.PhoneNumber, statusType)
 
 	if err != nil {
 		log.Print(err)
