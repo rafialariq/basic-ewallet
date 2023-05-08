@@ -73,6 +73,14 @@ func (u *TransactionUsecaseMock) SplitBill(sender string, receiver []string, amo
 	return nil
 }
 
+func (u *TransactionUsecaseMock) PayBill(receiver string, id_transaction string) error {
+	args := u.Called(receiver, id_transaction)
+	if err := args.Error(0); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (suite *TransactionControllerTestSuite) TestTopUpBalance_Success() {
 	NewTransactionController(suite.routerGroupMock, suite.transactionUsecaseMock, suite.userUsecaseMock)
 	var topUpDummy model.Bill

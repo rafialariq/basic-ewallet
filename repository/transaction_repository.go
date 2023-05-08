@@ -77,10 +77,10 @@ func (t *transactionRepo) TransferMoney(sender string, receiver string, amount f
 	}
 
 	query = "INSERT INTO trx_bill (sender_type_id, sender_id, type_id, amount, date, destination_type_id, destination_id, status) VALUES ($1, $2, $3, $4, $5, $6, $7,$8);"
-	_, err = t.db.Exec(query, 1, senderInDb.PhoneNumber, 2, amount, time.Now(), 3, merchantInDb.MerchantCode, 2)
+	_, err = t.db.Exec(query, 1, senderInDb.PhoneNumber, 2, amount, time.Now().Round(time.Second), 3, merchantInDb.MerchantCode, 2)
 
 	if err != nil {
-		log.Print(err)
+		log.Println(err)
 		_, err = t.db.Exec("ROLLBACK;")
 		return errors.New("transaction failed")
 	}
@@ -89,7 +89,7 @@ func (t *transactionRepo) TransferMoney(sender string, receiver string, amount f
 	_, err = t.db.Exec(query, amount, senderInDb.PhoneNumber)
 
 	if err != nil {
-		log.Print(err)
+		log.Println(err)
 		_, err = t.db.Exec("ROLLBACK;")
 		return errors.New("transaction failed")
 	}
@@ -98,14 +98,14 @@ func (t *transactionRepo) TransferMoney(sender string, receiver string, amount f
 	_, err = t.db.Exec(query, amount, merchantInDb.MerchantCode)
 
 	if err != nil {
-		log.Print(err)
+		log.Println(err)
 		_, err = t.db.Exec("ROLLBACK;")
 		return errors.New("transaction failed")
 	}
 
 	_, err = t.db.Exec("COMMIT;")
 	if err != nil {
-		log.Print(err)
+		log.Println(err)
 		_, err = t.db.Exec("ROLLBACK;")
 		return errors.New("transaction failed")
 	}

@@ -77,7 +77,7 @@ func (suite *TransactionRepositoryTestSuite) TestTransferMoney_Success() {
 		WithArgs(receiver.MerchantCode).
 		WillReturnRows(rowMerchant)
 	suite.mockSql.ExpectExec("BEGIN;").WillReturnResult(sqlmock.NewResult(0, 0))
-	suite.mockSql.ExpectExec(`INSERT\ INTO\ trx_bill\ \(sender_type_id,\ sender_id,\ type_id,\ amount,\ date,\ destination_type_id,\ destination_id,\ status\)\ VALUES\ \(\$1,\ \$2,\ \$3,\ \$4,\ \$5,\ \$6,\ \$7,\ \$8\);`).
+	suite.mockSql.ExpectExec(`INSERT INTO trx_bill \(sender_type_id, sender_id, type_id, amount, date, destination_type_id, destination_id, status\) VALUES \(\$1, \$2, \$3, \$4, \$5, \$6, \$7,\$8\);`).
 		WithArgs(1, sender.PhoneNumber, 2, amount, time.Now().Round(time.Second), 3, receiver.MerchantCode, 2).
 		WillReturnResult(sqlmock.NewResult(0, 1))
 	suite.mockSql.ExpectExec(`UPDATE mst_user SET balance \= balance \- \$1 WHERE phone_number \= \$2;`).
