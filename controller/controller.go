@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"errors"
 	"final_project_easycash/model"
 	"final_project_easycash/usecase"
 	"net/http"
@@ -16,24 +15,24 @@ type TransactionController struct {
 func (c *TransactionController) TransferMoney(ctx *gin.Context) {
 	var bill model.Bill
 
-	if err := ctx.ShouldBind(&bill); err != nil {
-		ctx.JSON(http.StatusBadRequest, "invalid input")
+	if err := ctx.ShouldBindJSON(&bill); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	if bill.Amount <= 0 {
-		ctx.JSON(http.StatusBadRequest, errors.New("invalid amount"))
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid amount"})
 		return
 	}
 
 	err := c.usecase.TransferMoney(bill.SenderId, bill.DestinationId, bill.Amount)
 
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, "transaction added")
+	ctx.JSON(http.StatusCreated, gin.H{"message": "transaction added"})
 }
 
 func NewTransactionController(u usecase.TransactionUsecase) *TransactionController {
