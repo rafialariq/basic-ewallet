@@ -96,6 +96,14 @@ func (t *transRepoMock) SplitBill(sender string, receiver []string, amount []flo
 	return nil
 }
 
+func (t *transRepoMock) PayBill(receiver string, id_transaction string) error {
+	args := t.Called(receiver, id_transaction)
+	if args == nil {
+		return errors.New("Failed")
+	}
+	return nil
+}
+
 func (suite *TransactionUsecaseTestSuite) TestTopUpBalance_Success() {
 	dummyAmount := 20000.00
 	dummyAmountAfterAdmin := 19000.00

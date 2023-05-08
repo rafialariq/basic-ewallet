@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"database/sql"
 	"errors"
 	"final_project_easycash/model"
 	"fmt"
@@ -16,7 +17,7 @@ type TransactionRepo interface {
 	TransferBalance(sender string, receiver string, amount float64) error
 	TopUpBalance(sender string, receiver string, amount float64) error
 	SplitBill(sender string, receiver []string, amount []float64) error
-	//PayBill(receiver string, idTransaction string) error
+	PayBill(receiver string, idTransaction string) error
 }
 
 type transactionRepo struct {
@@ -75,8 +76,8 @@ func (t *transactionRepo) TransferMoney(sender string, receiver string, amount f
 		return err
 	}
 
-	query = "INSERT INTO trx_bill (sender_type_id, sender_id, type_id, amount, date, destination_type_id, destination_id, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8);"
-	_, err = t.db.Exec(query, 1, senderInDb.PhoneNumber, 2, amount, time.Now().Round(time.Second), 3, merchantInDb.MerchantCode, 2)
+	query = "INSERT INTO trx_bill (sender_type_id, sender_id, type_id, amount, date, destination_type_id, destination_id, status) VALUES ($1, $2, $3, $4, $5, $6, $7,$8);"
+	_, err = t.db.Exec(query, 1, senderInDb.PhoneNumber, 2, amount, time.Now(), 3, merchantInDb.MerchantCode, 2)
 
 	if err != nil {
 		log.Print(err)
@@ -357,6 +358,73 @@ func (t *transactionRepo) SplitBill(sender string, receiver []string, amount []f
 		if err != nil {
 			return err
 		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (t *transactionRepo) PayBill(receiver string, id_transaction string) error {
+	var billAmount float64
+	var senderInDb model.User
+	var receiverInDb model.User
+	var status int
+
+	row := t.db.QueryRow(`SELECT amount, destination_id, status, sender_id FROM trx_bill WHERE id_transaction = $1`, id_transaction)
+	err := row.Scan(&billAmount, &receiverInDb.PhoneNumber, &status, &senderInDb.PhoneNumber)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return ErrBillNotFound
+		}
+		return err
+	}
+
+	if status == 2 {
+		return ErrBillPaid
+	}
+
+	tx, err := t.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	// Mendapatkan saldo penerima tagihan
+	var receiverBalance float64
+	row = tx.QueryRow(`SELECT balance FROM mst_user WHERE phone_number = $1`, receiverInDb.PhoneNumber)
+	err = row.Scan(&receiverBalance)
+	if err != nil {
+		return err
+	}
+
+	// Jika saldo penerima kurang dari jumlah tagihan
+	if receiverBalance < billAmount {
+		return ErrInsufficientBalance
+	}
+
+	// Mengurangi saldo penerima sebesar jumlah tagihan
+	query := `UPDATE mst_user SET balance = balance - $1 WHERE phone_number = $2`
+	_, err = tx.Exec(query, billAmount, receiverInDb.PhoneNumber)
+	if err != nil {
+		return err
+	}
+
+	// Menambah saldo pengirim sebesar jumlah tagihan
+	query = `UPDATE mst_user SET balance = balance + $1 WHERE phone_number = $2`
+	_, err = tx.Exec(query, billAmount, senderInDb.PhoneNumber)
+	if err != nil {
+		return err
+	}
+
+	// Mengubah status tagihan menjadi "paid"
+	query = `UPDATE trx_bill SET status = $1 WHERE id_transaction = $2`
+	_, err = tx.Exec(query, 2, id_transaction)
+	if err != nil {
+		return err
 	}
 
 	err = tx.Commit()

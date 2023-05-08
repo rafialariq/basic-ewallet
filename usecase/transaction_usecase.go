@@ -13,6 +13,7 @@ type TransactionUsecase interface {
 	WithdrawBalance(sender string, receiver string, amount float64) error
 	TransferBalance(sender string, receiver string, amount float64) error
 	SplitBill(sender string, receiver []string, amount []float64) error
+	PayBill(receiver string, id_transaction string) error
 }
 
 type transactionUsecase struct {
@@ -71,6 +72,10 @@ func (u *transactionUsecase) TransferBalance(sender string, receiver string, amo
 
 func (u *transactionUsecase) SplitBill(sender string, receiver []string, amount []float64) error {
 	return u.transactionRepo.SplitBill(sender, receiver, amount)
+}
+
+func (u *transactionUsecase) PayBill(receiver string, id_transaction string) error {
+	return u.transactionRepo.PayBill(receiver, id_transaction)
 }
 
 func NewTransactionUsecase(transactionRepo repository.TransactionRepo) TransactionUsecase {
