@@ -73,7 +73,7 @@ func (t *transactionRepo) TransferMoney(sender string, receiver string, amount f
 	}
 
 	query = "INSERT INTO trx_bill (sender_type_id, sender_id, type_id, amount, date, destination_type_id, destination_id, status) VALUES ($1, $2, $3, $4, $5, $6, $7,$8);"
-	_, err = t.db.Exec(query, 1, senderInDb.PhoneNumber, 2, amount, time.Now(), 3, merchantInDb.MerchantCode)
+	_, err = t.db.Exec(query, 1, senderInDb.PhoneNumber, 2, amount, time.Now(), 3, merchantInDb.MerchantCode, 2)
 
 	if err != nil {
 		_, err = t.db.Exec("ROLLBACK;")
