@@ -30,7 +30,7 @@ var dummyUsers = []model.User{
 	{
 		Id:           1,
 		Username:     "Dummy Username 1",
-		Password:     "Dummy Password",
+		Password:     "DummyPassword",
 		Email:        "dummy1@email.com",
 		PhoneNumber:  "08111111111",
 		PhotoProfile: "-",
@@ -38,8 +38,8 @@ var dummyUsers = []model.User{
 	},
 	{
 		Id:           2,
-		Username:     "Dummy Username 2",
-		Password:     "Dummy Password 2",
+		Username:     "DummyUsername 2",
+		Password:     "DummyPassword2",
 		Email:        "dummy2@email.com",
 		PhoneNumber:  "08222222222",
 		PhotoProfile: "Dummy Photo Profile",

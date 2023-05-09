@@ -30,18 +30,6 @@ func (suite *PasswordHashingSuite) TestPasswordHashing_Success() {
 	assert.Nil(suite.T(), err, "Hashed password doesn't match original password")
 }
 
-// func (suite *PasswordHashingSuite) TestPasswordHashing_Failed() {
-// 	password := "password123"
-
-// 	_, err := bcrypt.Cost([]byte{})
-// 	suite.NoError(err)
-
-// 	// Test when bcrypt.GenerateFromPassword returns an error
-// 	hashedPassword := PasswordHashing(password + "%invalid_chars")
-// 	assert.Equal(suite.T(), "", hashedPassword)
-// 	log.Println("Failed to generate hashed password")
-// }
-
-func TestRunPasswordHashingSuite(t *testing.T) {
+func TestPasswordHashingSuite(t *testing.T) {
 	suite.Run(t, new(PasswordHashingSuite))
 }

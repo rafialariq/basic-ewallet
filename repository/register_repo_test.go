@@ -1,87 +1,124 @@
 package repository
 
 import (
-	"errors"
 	"log"
 	"testing"
 
+	"final_project_easycash/model"
+
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/jmoiron/sqlx"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
 
-type RegisterRepositoryTestSuite struct {
+type RegisterRepoTestSuite struct {
 	suite.Suite
 	mockDb  *sqlx.DB
 	mockSql sqlmock.Sqlmock
 }
 
-func (suite *RegisterRepositoryTestSuite) TestUserRegister_Success() {
-	newUser := &dummyUsers[0]
-	suite.mockSql.ExpectExec(`INSERT INTO mst_user \(username, email, phone_number, password\) VALUES \(\$1, \$2, \$3, \$4\);`).
-		WithArgs(newUser.Username, newUser.Email, newUser.PhoneNumber, newUser.Password).
-		WillReturnResult(sqlmock.NewResult(0, 1))
-	repo := NewRegisterRepo(suite.mockDb)
-	actual, err := repo.UserRegister(newUser)
-
-	assert.Equal(suite.T(), "user created successfully", err)
-	assert.Equal(suite.T(), true, actual)
+var dummyNewUser = []model.User{
+	{
+		Username:    "userDummy1",
+		Email:       "user1@gmail.com",
+		PhoneNumber: "081234567891",
+		Password:    "passwordUser1",
+	},
+	{
+		Username:    "userDummy2",
+		Email:       "user2@gmail.com",
+		PhoneNumber: "081234567892",
+		Password:    "passwordUser2",
+	},
+	{
+		Username:    "userDummy3",
+		Email:       "user3@gmail.com",
+		PhoneNumber: "081234567893",
+		Password:    "passwordUser3",
+	},
 }
 
-func (suite *RegisterRepositoryTestSuite) TestUserRegister_Failed() {
-	newUser := &dummyUsers[0]
-	suite.mockSql.ExpectExec(`INSERT INTO mst_user \(username, email, phone_number, password\) VALUES \(\$1, \$2, \$3, \$4\);`).
-		WillReturnError(errors.New("Failed"))
-	repo := NewRegisterRepo(suite.mockDb)
-	actual, err := repo.UserRegister(newUser)
+func (suite *RegisterRepoTestSuite) TestUserRegister_Success() {
+	newUser := dummyNewUser[0]
+	suite.mockSql.ExpectExec("INSERT INTO mst_user").WithArgs(newUser.Username, newUser.Email, newUser.PhoneNumber, newUser.Password).WillReturnResult(sqlmock.NewResult(1, 1))
+	registerRepo := NewRegisterRepo(suite.mockDb)
+	user, res := registerRepo.UserRegister(&newUser)
 
-	assert.Equal(suite.T(), "failed to create user", err)
-	assert.Equal(suite.T(), false, actual)
+	assert.True(suite.T(), user)
+	assert.Equal(suite.T(), "user created successfully", res)
 }
 
-func (suite *RegisterRepositoryTestSuite) TestRegisterValidate_Success() {
-	row := sqlmock.NewRows([]string{"username", "password"})
-	row.AddRow(dummyUsers[0].Username, "$2y$10$.0qAQ9W4smgbIAbf/zwuseNnbC7.baKDY41IIFNsQcxk2UEdTPzcy")
-	newUser := &dummyUsers[1]
+func (suite *RegisterRepoTestSuite) TestUserRegister_Failed() {
+	newUser := dummyNewUser[0]
+	suite.mockSql.ExpectExec("INSERT INTO mst_user")
+	registerRepo := NewRegisterRepo(suite.mockDb)
+	user, res := registerRepo.UserRegister(&newUser)
 
-	suite.mockSql.ExpectQuery(`SELECT username, phone_number FROM mst_user WHERE username \= \$1 OR phone_number \= \$2;`).
-		WithArgs(newUser.Username, newUser.PhoneNumber).
-		WillReturnRows(row)
-	repo := NewRegisterRepo(suite.mockDb)
-	actual := repo.RegisterValidate(newUser)
+	assert.False(suite.T(), user)
+	assert.Equal(suite.T(), "failed to create user", res)
 
-	assert.Equal(suite.T(), false, actual)
 }
 
-func (suite *RegisterRepositoryTestSuite) TestRegisterValidate_Failed() {
-	row := sqlmock.NewRows([]string{"username", "password"})
-	row.AddRow(dummyUsers[0].Username, "$2y$10$.0qAQ9W4smgbIAbf/zwuseNnbC7.baKDY41IIFNsQcxk2UEdTPzcy")
-	newUser := &dummyUsers[0]
+func (suite *RegisterRepoTestSuite) TestRegisterValidate_UsernameFound() {
+	recUser := &dummyNewUser[1]
 
-	suite.mockSql.ExpectQuery(`SELECT username, phone_number FROM mst_user WHERE username \= \$1 OR phone_number \= \$2;`).
-		WithArgs(newUser.Username, newUser.PhoneNumber).
-		WillReturnRows(row)
-	repo := NewRegisterRepo(suite.mockDb)
-	actual := repo.RegisterValidate(newUser)
+	rows := sqlmock.NewRows([]string{"username", "phone_number"}).AddRow("userDummy2", "081234567892")
+	query := "SELECT username, phone_number FROM mst_user WHERE username = \\$1 OR phone_number = \\$2;"
+	suite.mockSql.ExpectQuery(query).WithArgs(recUser.Username, recUser.PhoneNumber).WillReturnRows(rows)
 
-	assert.Equal(suite.T(), true, actual)
+	registerRepo := NewRegisterRepo(suite.mockDb)
+	result := registerRepo.RegisterValidate(recUser)
+
+	assert.True(suite.T(), result)
+	assert.NoError(suite.T(), suite.mockSql.ExpectationsWereMet())
 }
 
-func (suite *RegisterRepositoryTestSuite) SetupTest() {
+func (suite *RegisterRepoTestSuite) TestRegisterValidate_PhoneNumberFound() {
+	recUser := &dummyNewUser[2]
+
+	rows := sqlmock.NewRows([]string{"username", "phone_number"}).AddRow("userDummy3", "081234567893")
+	query := "SELECT username, phone_number FROM mst_user WHERE username = \\$1 OR phone_number = \\$2;"
+	suite.mockSql.ExpectQuery(query).WithArgs(recUser.Username, recUser.PhoneNumber).WillReturnRows(rows)
+
+	registerRepo := NewRegisterRepo(suite.mockDb)
+	result := registerRepo.RegisterValidate(recUser)
+
+	assert.True(suite.T(), result)
+	assert.NoError(suite.T(), suite.mockSql.ExpectationsWereMet())
+}
+
+func (suite *RegisterRepoTestSuite) TestRegisterValidate_NotFound() {
+	recUser := &dummyNewUser[0]
+
+	rows := sqlmock.NewRows([]string{"userDummy1", "081234567891"})
+	query := "SELECT username, phone_number FROM mst_user WHERE username = \\$1 OR phone_number = \\$2;"
+	suite.mockSql.ExpectQuery(query).WithArgs(recUser.Username, recUser.PhoneNumber).WillReturnRows(rows)
+
+	registerRepo := NewRegisterRepo(suite.mockDb)
+	result := registerRepo.RegisterValidate(recUser)
+
+	assert.False(suite.T(), result)
+	assert.NoError(suite.T(), suite.mockSql.ExpectationsWereMet())
+}
+
+func (suite *RegisterRepoTestSuite) SetupTest() {
 	mockDb, mockSql, err := sqlmock.New()
 	if err != nil {
 		log.Fatalln("An error when opening a stub database connection", err)
 	}
-	sqlxDB := sqlx.NewDb(mockDb, "sqlmock")
-	suite.mockDb = sqlxDB
+
+	db := sqlx.NewDb(mockDb, "postgres")
+
+	suite.mockDb = db
 	suite.mockSql = mockSql
 }
 
-func (suite *RegisterRepositoryTestSuite) TearDownTest() {
+func (suite *RegisterRepoTestSuite) TearDownTest() {
 	suite.mockDb.Close()
 }
 
 func TestRegisterRepositoryTestSuite(t *testing.T) {
-	suite.Run(t, new(RegisterRepositoryTestSuite))
+	suite.Run(t, new(RegisterRepoTestSuite))
 }

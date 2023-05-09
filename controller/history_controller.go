@@ -61,7 +61,11 @@ func (h *HistoryController) FindByType(ctx *gin.Context) {
 		return
 	}
 
-	typeId := ctx.Param("typeId")
+	typeId, err := strconv.Atoi(ctx.Param("typeId"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
 	res, err := h.historyUsecase.HistoryWithTypeFilter(user, typeId)
 	if err != nil {

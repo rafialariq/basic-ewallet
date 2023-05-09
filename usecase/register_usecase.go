@@ -19,15 +19,18 @@ type registerService struct {
 }
 
 func (r *registerService) UserSignup(newUser *model.User) (bool, string) {
-	if !utils.ValidateUsername(newUser.Username) {
+	if !utils.IsUsernameValid(newUser.Username) {
 		return false, "your username is too short or too long"
-	} else if utils.ValidateEmail(newUser.Email) {
+	} else if !utils.IsPasswordValid(newUser.Password) {
+		return false, "invalid password"
+	} else if !utils.IsEmailValid(newUser.Email) {
 		return false, "invalid email"
-	} else if !utils.ValidatePhoneNumber(newUser.PhoneNumber) {
+	} else if !utils.IsPhoneNumberValid(newUser.PhoneNumber) {
 		return false, "invalid phone number"
 	} else if r.registerRepo.RegisterValidate(newUser) {
 		return false, "user already exist"
 	}
+
 	newUser.Password = utils.PasswordHashing(newUser.Password)
 
 	user, res := r.registerRepo.UserRegister(newUser)
@@ -36,9 +39,9 @@ func (r *registerService) UserSignup(newUser *model.User) (bool, string) {
 		token := jwt.New(jwt.SigningMethodHS256)
 		claims := token.Claims.(jwt.MapClaims)
 		claims["username"] = newUser.Username
-		claims["exp"] = time.Now().Add(time.Minute * 5).Unix()
+		claims["exp"] = time.Now().Add(time.Minute * 5).Unix() // hardcode
 
-		tokenString, err := token.SignedString([]byte("secretkey"))
+		tokenString, err := token.SignedString([]byte("secretkey")) // hardcode
 		if err != nil {
 			return false, "failed to generate token"
 		}

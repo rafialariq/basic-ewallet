@@ -42,11 +42,13 @@ func (u *userUsecase) CheckProfile(username string) (model.User, error) {
 }
 
 func (u *userUsecase) EditProfile(updatedUserData *model.User) error {
-	validateEmail := utils.ValidateEmail(updatedUserData.Email)
-	validatePhoneNumber := utils.ValidatePhoneNumber(updatedUserData.PhoneNumber)
-	if validateEmail {
+	if !utils.IsUsernameValid(updatedUserData.Username) {
+		return errors.New("your username is too short or too long")
+	} else if !utils.IsPasswordValid(updatedUserData.Password) {
+		return errors.New("invalid password")
+	} else if !utils.IsEmailValid(updatedUserData.Email) {
 		return errors.New("invalid email")
-	} else if !validatePhoneNumber {
+	} else if !utils.IsPhoneNumberValid(updatedUserData.PhoneNumber) {
 		return errors.New("invalid phone number")
 	} else {
 		updatedUserData.Password = utils.PasswordHashing(updatedUserData.Password)

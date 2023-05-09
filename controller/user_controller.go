@@ -85,7 +85,7 @@ func (c *UserController) EditProfile(ctx *gin.Context) {
 	err = c.usecase.EditProfile(&user)
 
 	if err != nil {
-		if err.Error() == "invalid email" || err.Error() == "invalid phone number" {
+		if err.Error() == "your username is too short or too long" || err.Error() == "invalid password" || err.Error() == "invalid password" || err.Error() == "invalid email" || err.Error() == "invalid phone number" {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}

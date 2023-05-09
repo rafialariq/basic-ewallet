@@ -122,5 +122,5 @@ func TestCustomerRepositoryTestSuite(t *testing.T) {
 	suite.Run(t, new(UserRepositoryTestSuite))
 }
 
-//go test ./... -coverprofile=coverage.out
+//go test ./... -coverprofile=coverage
 //go tool cover -html=coverage

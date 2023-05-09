@@ -1,75 +1,115 @@
 package repository
 
 import (
-	"errors"
+	"database/sql"
 	"log"
 	"testing"
 
+	"final_project_easycash/model"
+
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/jmoiron/sqlx"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
 
-type LoginRepositoryTestSuite struct {
+var dummyUser = []model.User{
+	{
+		Username:    "userDummy1",
+		Email:       "user1@gmail.com",
+		PhoneNumber: "081234567891",
+		Password:    "passwordUser1",
+	},
+	{
+		Username:    "userDummy2",
+		Email:       "user2@gmail.com",
+		PhoneNumber: "081234567892",
+		Password:    "passwordUser2",
+	},
+	{
+		Username:    "userDummy3",
+		Email:       "user3@gmail.com",
+		PhoneNumber: "081234567893",
+		Password:    "passwordUser3",
+	},
+}
+
+type LoginRepoTestSuite struct {
 	suite.Suite
 	mockDb  *sqlx.DB
 	mockSql sqlmock.Sqlmock
 }
 
-func (suite *LoginRepositoryTestSuite) TestFindUser_Success() {
-	row := sqlmock.NewRows([]string{"username", "password"})
-	row.AddRow(dummyUsers[0].Username, "$2y$10$.0qAQ9W4smgbIAbf/zwuseNnbC7.baKDY41IIFNsQcxk2UEdTPzcy")
+func (suite *LoginRepoTestSuite) TestFindUser_Success() {
+	recUser := dummyUser[0]
+	UserInDb := model.User{
+		Username: "userDummy1",
+		Password: "$2a$10$6wvkxozhPmUsP0sr8XciNOVPQM7XUZBYt1DeOfLI/4XRkM4YCkNiG", // hashed "passwordUser1"
+	}
 
-	suite.mockSql.ExpectQuery(`SELECT username, password FROM mst_user WHERE username = \$1`).WithArgs(dummyUsers[0].Username).WillReturnRows(row)
-	repo := NewLoginRepo(suite.mockDb)
+	rows := sqlmock.NewRows([]string{"username", "password"}).
+		AddRow(UserInDb.Username, UserInDb.Password)
+	suite.mockSql.ExpectQuery("SELECT username, password FROM mst_user WHERE username = (.+)").
+		WithArgs(recUser.Username).
+		WillReturnRows(rows)
 
-	actual, err := repo.FindUser(dummyUsers[0])
-
-	assert.Equal(suite.T(), "successfully login", err)
-	assert.Equal(suite.T(), true, actual)
+	loginRepo := NewLoginRepo(suite.mockDb)
+	result, message := loginRepo.FindUser(recUser)
+	assert.True(suite.T(), result)
+	assert.Equal(suite.T(), "successfully login", message)
 }
 
-func (suite *LoginRepositoryTestSuite) TestFindUserInvalidPassword_Failed() {
-	row := sqlmock.NewRows([]string{"username", "password"})
-	row.AddRow(dummyUsers[1].Username, "$2y$10$.0qAQ9W4smgbIAbf/zwuseNnbC7.baKDY41IIFNsQcxk2UEdTPzcy")
+func (suite *LoginRepoTestSuite) TestFindUserFailUserNotFound() {
+	recUser := dummyUser[0]
 
-	suite.mockSql.ExpectQuery(`SELECT username, password FROM mst_user WHERE username = \$1`).WithArgs(dummyUsers[1].Username).WillReturnRows(row)
-	repo := NewLoginRepo(suite.mockDb)
+	suite.mockSql.ExpectQuery("SELECT username, password FROM mst_user WHERE username = (.+)").
+		WithArgs(recUser.Username).
+		WillReturnError(sql.ErrNoRows)
 
-	actual, err := repo.FindUser(dummyUsers[1])
-
-	assert.Equal(suite.T(), "invalid password", err)
-	assert.Equal(suite.T(), false, actual)
+	loginRepo := NewLoginRepo(suite.mockDb)
+	result, message := loginRepo.FindUser(recUser)
+	assert.False(suite.T(), result)
+	assert.Equal(suite.T(), "user not found", message)
 }
 
-func (suite *LoginRepositoryTestSuite) TestFindUserUserNotFound_Failed() {
-	row := sqlmock.NewRows([]string{"username", "password"})
-	row.AddRow(dummyUsers[0].Username, "$2y$10$.0qAQ9W4smgbIAbf/zwuseNnbC7.baKDY41IIFNsQcxk2UEdTPzcy")
+func (suite *LoginRepoTestSuite) TestFindUserFailInvalidPassword() {
+	recUser := dummyUser[0]
+	resUser := model.User{
+		Username: "userDummy1",
+		Password: "$2a$10$6wvkxozhPmUsP0sr8XciNOVPQM7XUZBYt1DeOfLI/4XRkM4YCkNiG", // hashed "passwordUser1"
+	}
 
-	suite.mockSql.ExpectQuery(`SELECT username, password FROM mst_user WHERE username = \$1`).WithArgs(dummyUsers[1].Username).WillReturnError(errors.New("failed"))
-	repo := NewLoginRepo(suite.mockDb)
+	rows := sqlmock.NewRows([]string{"username", "password"}).
+		AddRow(resUser.Username, resUser.Password)
+	suite.mockSql.ExpectQuery("SELECT username, password FROM mst_user WHERE username = (.+)").
+		WithArgs(recUser.Username).
+		WillReturnRows(rows)
 
-	actual, err := repo.FindUser(dummyUsers[1])
+	recUser.Password = "passwordUser2"
 
-	assert.Equal(suite.T(), "user not found", err)
-	assert.Equal(suite.T(), false, actual)
+	loginRepo := NewLoginRepo(suite.mockDb)
+	result, message := loginRepo.FindUser(recUser)
+	assert.False(suite.T(), result)
+	assert.Equal(suite.T(), "invalid password", message)
 }
 
-func (suite *LoginRepositoryTestSuite) SetupTest() {
+func (suite *LoginRepoTestSuite) SetupTest() {
 	mockDb, mockSql, err := sqlmock.New()
 	if err != nil {
 		log.Fatalln("An error when opening a stub database connection", err)
 	}
-	sqlxDB := sqlx.NewDb(mockDb, "sqlmock")
-	suite.mockDb = sqlxDB
+
+	db := sqlx.NewDb(mockDb, "postgres")
+
+	suite.mockDb = db
 	suite.mockSql = mockSql
 }
 
-func (suite *LoginRepositoryTestSuite) TearDownTest() {
+func (suite *LoginRepoTestSuite) TearDownTest() {
 	suite.mockDb.Close()
 }
 
 func TestLoginRepositoryTestSuite(t *testing.T) {
-	suite.Run(t, new(LoginRepositoryTestSuite))
+	suite.Run(t, new(LoginRepoTestSuite))
 }

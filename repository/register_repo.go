@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"fmt"
 	"log"
 
 	"final_project_easycash/model"
@@ -20,6 +19,7 @@ type registerRepo struct {
 }
 
 func (r *registerRepo) UserRegister(newUser *model.User) (bool, string) {
+
 	query := "INSERT INTO mst_user (username, email, phone_number, password) VALUES ($1, $2, $3, $4);"
 	_, err := r.db.Exec(query, &newUser.Username, &newUser.Email, &newUser.PhoneNumber, &newUser.Password)
 	if err != nil {
@@ -37,7 +37,8 @@ func (r *registerRepo) RegisterValidate(recUser *model.User) bool {
 	row := r.db.QueryRow(query, &recUser.Username, &recUser.PhoneNumber)
 
 	if err := row.Scan(&resUser.Username, &resUser.PhoneNumber); err != nil {
-		fmt.Println("errornya: ", err)
+		log.Println(err)
+		return false
 	}
 
 	if recUser.Username == resUser.Username || recUser.PhoneNumber == resUser.PhoneNumber {

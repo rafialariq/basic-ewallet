@@ -59,3 +59,7 @@
 ::1 -  [08/May/2023:13:23:33 +0700] "POST /menu/split-bill HTTP/1.1" 201 37 "" "PostmanRuntime/7.32.2" 29.6628ms
 ::1 -  [08/May/2023:14:01:32 +0700] "POST /login HTTP/1.1" 200 148 "" "PostmanRuntime/7.32.2" 104.5371ms
 ::1 -  [08/May/2023:14:04:10 +0700] "POST /menu/topup HTTP/1.1" 200 31 "" "PostmanRuntime/7.32.2" 53.0285ms
+::1 -  [09/May/2023:15:25:07 +0700] "POST /signup HTTP/1.1" 400 28 "" "PostmanRuntime/7.32.2" 6.7536ms
+::1 -  [09/May/2023:15:25:15 +0700] "POST /signup HTTP/1.1" 400 28 "" "PostmanRuntime/7.32.2" 0s
+::1 -  [09/May/2023:15:25:20 +0700] "POST /signup HTTP/1.1" 201 189 "" "PostmanRuntime/7.32.2" 175.6511ms
+::1 -  [09/May/2023:15:26:09 +0700] "POST /login HTTP/1.1" 200 151 "" "PostmanRuntime/7.32.2" 66.2449ms

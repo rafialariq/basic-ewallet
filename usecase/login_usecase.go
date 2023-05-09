@@ -24,9 +24,9 @@ func (l *loginService) UserLogin(user model.User) (bool, string) {
 		token := jwt.New(jwt.SigningMethodHS256)
 		claims := token.Claims.(jwt.MapClaims)
 		claims["username"] = user.Username
-		claims["exp"] = time.Now().Add(time.Minute * 5).Unix()
+		claims["exp"] = time.Now().Add(time.Minute * 5).Unix() // hardcode
 
-		tokenString, err := token.SignedString([]byte("secretkey"))
+		tokenString, err := token.SignedString([]byte("secretkey")) // hardcode
 		if err != nil {
 			return false, "failed to generate token"
 		}

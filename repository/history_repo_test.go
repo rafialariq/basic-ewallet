@@ -4,13 +4,11 @@ import (
 	"errors"
 	"final_project_easycash/model"
 	"log"
-
 	"testing"
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/jmoiron/sqlx"
-
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -185,7 +183,7 @@ func (suite *HistoryRepoTestSuite) TestGetHistoryWithAccountFilter_FailedNoArgs(
 
 func (suite *HistoryRepoTestSuite) TestGetHistoryWithTypeFilter_Success() {
 	user := model.User{PhoneNumber: "082123456789"}
-	typeId := "1"
+	typeId := 1
 
 	rows := sqlmock.NewRows([]string{"id", "id_transaction", "sender_type_id", "sender_id", "type_id", "amount", "date", "destination_type_id", "destination_id", "status"})
 	for _, v := range dummyData {
@@ -206,7 +204,7 @@ func (suite *HistoryRepoTestSuite) TestGetHistoryWithTypeFilter_Success() {
 
 func (suite *HistoryRepoTestSuite) TestGetHistoryWithTypeFilter_FailedNoArg() {
 	user := model.User{}
-	typeId := "1"
+	typeId := 1
 
 	rows := sqlmock.NewRows([]string{"id", "id_transaction", "sender_type_id", "sender_id", "type_id", "amount", "date", "destination_type_id", "destination_id", "status"})
 	for _, v := range dummyData {
@@ -310,7 +308,6 @@ func (suite *HistoryRepoTestSuite) TestGetHistoryWithAmountFilter_FailedNoArg() 
 // }
 
 func (suite *HistoryRepoTestSuite) SetupTest() {
-	// db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 	mockDb, mockSql, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 	if err != nil {
 		log.Fatalln("An error when opening a stub database connection", err)

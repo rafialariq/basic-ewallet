@@ -5,23 +5,7 @@ import (
 	"strings"
 )
 
-func ValidateEmail(email string) bool {
-
-	for _, c := range email {
-		if c < 31 || c > 127 || strings.ContainsAny(string(c), `()<>,;:\\"[]`) {
-			return true
-		}
-	}
-
-	emailRegex := regexp.MustCompile(`^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$`)
-	if !emailRegex.MatchString(email) {
-		return true
-	}
-
-	return false
-}
-
-func ValidateUsername(username string) bool {
+func IsUsernameValid(username string) bool {
 	if len(username) < 6 || len(username) > 20 {
 		return false
 	}
@@ -29,14 +13,36 @@ func ValidateUsername(username string) bool {
 	return true
 }
 
-func ValidatePhoneNumber(phone string) bool {
-	phone = strings.ReplaceAll(phone, " ", "")
+func IsPasswordValid(password string) bool {
 
-	if len(phone) < 10 || len(phone) > 14 {
+	if len(password) <= 8 || len(password) >= 20 {
+		return false
+	} else if strings.ContainsAny(password, ` ^*+=-_()<>,;:\\"[]`) {
 		return false
 	}
 
-	var validPhone = regexp.MustCompile(`^[0-9]+$`).MatchString(phone)
+	return true
+}
+
+func IsEmailValid(email string) bool {
+	for _, c := range email {
+		if c < 31 || c > 127 || strings.ContainsAny(string(c), `()<>,;:\\"[]`) {
+			return false
+		}
+	}
+
+	emailRegex := regexp.MustCompile(`^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$`)
+	return emailRegex.MatchString(email)
+}
+
+func IsPhoneNumberValid(phoneNumber string) bool {
+	phoneNumber = strings.ReplaceAll(phoneNumber, " ", "")
+
+	if len(phoneNumber) < 10 || len(phoneNumber) > 14 {
+		return false
+	}
+
+	var validPhone = regexp.MustCompile(`^[0-9]+$`).MatchString(phoneNumber)
 
 	return validPhone
 }

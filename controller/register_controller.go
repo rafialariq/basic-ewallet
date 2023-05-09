@@ -27,8 +27,8 @@ func (r *RegisterController) RegisterHandler(ctx *gin.Context) {
 
 	if user {
 		ctx.JSON(http.StatusCreated, gin.H{
-			"msg":   "user created successfully",
-			"token": res,
+			"message": "user created successfully",
+			"token":   res,
 		})
 		return
 	} else {
