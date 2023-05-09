@@ -1,8 +1,6 @@
 package repository
 
 import (
-	// "errors"
-	// "errors"
 	"final_project_easycash/model"
 
 	"github.com/jmoiron/sqlx"
@@ -12,7 +10,7 @@ import (
 type HistoryRepo interface {
 	GetHistoryByUser(user model.User) ([]model.Bill, error)
 	GetHistoryWithAccountFilter(user model.User, accountTypeId int) ([]model.Bill, error)
-	GetHistoryWithTypeFilter(user model.User, typeId string) ([]model.Bill, error)
+	GetHistoryWithTypeFilter(user model.User, typeId int) ([]model.Bill, error)
 	GetHistoryWithAmountFilter(user model.User, moreThan, lessThan float64) ([]model.Bill, error)
 }
 
@@ -68,13 +66,13 @@ func (h *historyRepo) GetHistoryWithAccountFilter(user model.User, accountTypeId
 	return historyList, nil
 }
 
-func (h *historyRepo) GetHistoryWithTypeFilter(user model.User, typeId string) ([]model.Bill, error) {
+func (h *historyRepo) GetHistoryWithTypeFilter(user model.User, typeId int) ([]model.Bill, error) {
 	var historyList []model.Bill
 
 	query := "SELECT id, id_transaction, sender_type_id, sender_id, type_id, amount, date, destination_type_id, destination_id, status FROM trx_bill WHERE (sender_id = $1 OR destination_id = $1) AND type_id = $2;"
 	rows, err := h.db.Query(query, &user.PhoneNumber, &typeId)
 	if err != nil {
-		return historyList, err
+		return nil, err
 	}
 	defer rows.Close()
 
@@ -83,7 +81,7 @@ func (h *historyRepo) GetHistoryWithTypeFilter(user model.User, typeId string) (
 		err := rows.Scan(&history.Id, &history.TransactionId, &history.SenderTypeId, &history.SenderId, &history.TypeId, &history.Amount, &history.Date, &history.DestinationTypeId, &history.DestinationId, &history.Status)
 
 		if err != nil {
-			return historyList, err
+			return nil, err
 		}
 
 		historyList = append(historyList, history)
@@ -98,7 +96,7 @@ func (h *historyRepo) GetHistoryWithAmountFilter(user model.User, moreThan, less
 	query := "SELECT id, id_transaction, sender_type_id, sender_id, type_id, amount, date, destination_type_id, destination_id, status FROM trx_bill WHERE (sender_id = $1 OR destination_id = $1) AND amount >= $2 AND amount <= $3;"
 	rows, err := h.db.Query(query, &user.PhoneNumber, &moreThan, &lessThan)
 	if err != nil {
-		return historyList, err
+		return nil, err
 	}
 	defer rows.Close()
 
@@ -107,7 +105,7 @@ func (h *historyRepo) GetHistoryWithAmountFilter(user model.User, moreThan, less
 		err := rows.Scan(&history.Id, &history.TransactionId, &history.SenderTypeId, &history.SenderId, &history.TypeId, &history.Amount, &history.Date, &history.DestinationTypeId, &history.DestinationId, &history.Status)
 
 		if err != nil {
-			return historyList, err
+			return nil, err
 		}
 
 		historyList = append(historyList, history)

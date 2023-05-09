@@ -5,8 +5,6 @@ import (
 	"testing"
 	"time"
 
-	// "log"
-
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
@@ -65,7 +63,7 @@ func (h *HistoryRepoMock) GetHistoryWithAccountFilter(user model.User, accountTy
 	return args.Get(0).([]model.Bill), args.Error(1)
 }
 
-func (h *HistoryRepoMock) GetHistoryWithTypeFilter(user model.User, typeId string) ([]model.Bill, error) {
+func (h *HistoryRepoMock) GetHistoryWithTypeFilter(user model.User, typeId int) ([]model.Bill, error) {
 	args := h.Called(&user, &typeId)
 	return args.Get(0).([]model.Bill), args.Error(1)
 }
@@ -110,7 +108,7 @@ func (suite *HistoryUsecaseTestSuite) TestHistoryWithAccountFilter_Success() {
 
 func (suite *HistoryUsecaseTestSuite) TestHistoryWithTypeFilter_Success() {
 	user := &model.User{PhoneNumber: "082123456789"}
-	typeId := "1"
+	typeId := 1
 
 	suite.repoMock.On("GetHistoryWithTypeFilter", user, &typeId).Return(dummyData, nil)
 

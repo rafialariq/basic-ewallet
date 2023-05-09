@@ -8,7 +8,7 @@ import (
 type HistoryUsecase interface {
 	HistoryByUser(user model.User) ([]model.Bill, error)
 	HistoryWithAccountFilter(user model.User, accountTypeId int) ([]model.Bill, error)
-	HistoryWithTypeFilter(user model.User, typeId string) ([]model.Bill, error)
+	HistoryWithTypeFilter(user model.User, typeId int) ([]model.Bill, error)
 	HistoryWithAmountFilter(user model.User, moreThan, lessThan float64) ([]model.Bill, error)
 }
 
@@ -24,7 +24,7 @@ func (h *historyUsecase) HistoryWithAccountFilter(user model.User, accountTypeId
 	return h.historyRepo.GetHistoryWithAccountFilter(user, accountTypeId)
 }
 
-func (h *historyUsecase) HistoryWithTypeFilter(user model.User, typeId string) ([]model.Bill, error) {
+func (h *historyUsecase) HistoryWithTypeFilter(user model.User, typeId int) ([]model.Bill, error) {
 	return h.historyRepo.GetHistoryWithTypeFilter(user, typeId)
 }
 
