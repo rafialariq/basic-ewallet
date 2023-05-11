@@ -1,10 +1,12 @@
 package usecase
 
 import (
+	"strconv"
 	"time"
 
 	"final_project_easycash/model"
 	"final_project_easycash/repository"
+	"final_project_easycash/utils"
 
 	"github.com/dgrijalva/jwt-go"
 )
@@ -20,13 +22,15 @@ type loginService struct {
 func (l *loginService) UserLogin(user model.User) (bool, string) {
 	recUser, res := l.loginRepo.FindUser(user)
 
+	authDuration, _ := strconv.Atoi(utils.DotEnv("AUTH_DURATION", ".env"))
+
 	if recUser {
 		token := jwt.New(jwt.SigningMethodHS256)
 		claims := token.Claims.(jwt.MapClaims)
 		claims["username"] = user.Username
-		claims["exp"] = time.Now().Add(time.Minute * 5).Unix() // hardcode
+		claims["exp"] = time.Now().Add(time.Minute * time.Duration(authDuration)).Unix()
 
-		tokenString, err := token.SignedString([]byte("secretkey")) // hardcode
+		tokenString, err := token.SignedString([]byte(utils.DotEnv("TOKEN_KEY", ".env")))
 		if err != nil {
 			return false, "failed to generate token"
 		}

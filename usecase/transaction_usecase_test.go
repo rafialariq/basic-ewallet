@@ -156,6 +156,24 @@ func (suite *TransactionUsecaseTestSuite) TestTransferBalance_Failed() {
 	assert.NotNil(suite.T(), err)
 }
 
+func (suite *TransactionUsecaseTestSuite) TestTransferMoneyToMerchant_Success() {
+	dummyAmount := 10000.00
+	transactionUsecaseMock := NewTransactionUsecase(suite.repoMock)
+	suite.repoMock.On("TransferMoney", dummyUsers[0].PhoneNumber, dummyMerchants[0].MerchantCode, dummyAmount).Return(nil)
+
+	err := transactionUsecaseMock.TransferMoney(dummyUsers[0].PhoneNumber, dummyMerchants[0].MerchantCode, dummyAmount)
+	assert.Nil(suite.T(), err)
+}
+
+func (suite *TransactionUsecaseTestSuite) TestTransferMoneyToMerchant_Failed() {
+	dummyAmount := -10000.00
+	transactionUsecaseMock := NewTransactionUsecase(suite.repoMock)
+	suite.repoMock.On("TransferMoney", dummyUsers[0].PhoneNumber, dummyMerchants[0].MerchantCode, dummyAmount).Return(errors.New("Transfer failed"))
+
+	err := transactionUsecaseMock.TransferMoney(dummyUsers[0].PhoneNumber, dummyMerchants[0].MerchantCode, dummyAmount)
+	assert.NotNil(suite.T(), err)
+}
+
 func (suite *TransactionUsecaseTestSuite) SetupTest() {
 	suite.repoMock = new(transRepoMock)
 }

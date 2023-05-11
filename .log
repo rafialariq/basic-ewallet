@@ -63,3 +63,15 @@
 ::1 -  [09/May/2023:15:25:15 +0700] "POST /signup HTTP/1.1" 400 28 "" "PostmanRuntime/7.32.2" 0s
 ::1 -  [09/May/2023:15:25:20 +0700] "POST /signup HTTP/1.1" 201 189 "" "PostmanRuntime/7.32.2" 175.6511ms
 ::1 -  [09/May/2023:15:26:09 +0700] "POST /login HTTP/1.1" 200 151 "" "PostmanRuntime/7.32.2" 66.2449ms
+::1 -  [09/May/2023:16:00:07 +0700] "POST /login HTTP/1.1" 200 148 "" "PostmanRuntime/7.32.2" 123.3993ms
+::1 -  [09/May/2023:16:00:17 +0700] "GET /menu/profile/barbarbar HTTP/1.1" 200 146533 "" "PostmanRuntime/7.32.2" 57.7858ms
+::1 -  [09/May/2023:16:00:26 +0700] "POST /menu/profile/edit HTTP/1.1" 400 28 "" "PostmanRuntime/7.32.2" 0s
+::1 -  [09/May/2023:16:00:40 +0700] "POST /menu/transfer/bank HTTP/1.1" 200 31 "" "PostmanRuntime/7.32.2" 51.9125ms
+::1 -  [09/May/2023:16:01:07 +0700] "POST /menu/merchant HTTP/1.1" 201 31 "" "PostmanRuntime/7.32.2" 9.5445ms
+::1 -  [09/May/2023:16:01:18 +0700] "GET /menu/history HTTP/1.1" 200 3646 "" "PostmanRuntime/7.32.2" 6.7451ms
+::1 -  [09/May/2023:16:01:28 +0700] "GET /menu/history/account/2 HTTP/1.1" 200 1786 "" "PostmanRuntime/7.32.2" 1.0735ms
+::1 -  [09/May/2023:16:01:37 +0700] "GET /menu/history/type/1 HTTP/1.1" 200 1192 "" "PostmanRuntime/7.32.2" 505.5µs
+::1 -  [09/May/2023:16:01:47 +0700] "GET /menu/history/200/9000 HTTP/1.1" 401 24 "" "PostmanRuntime/7.32.2" 0s
+::1 -  [09/May/2023:16:01:51 +0700] "GET /menu/history/200/9000 HTTP/1.1" 200 983 "" "PostmanRuntime/7.32.2" 679.7µs
+::1 -  [11/May/2023:09:18:31 +0700] "POST /login HTTP/1.1" 200 148 "" "PostmanRuntime/7.32.2" 107.5535ms
+::1 -  [11/May/2023:09:18:48 +0700] "POST /signup HTTP/1.1" 400 30 "" "PostmanRuntime/7.32.2" 10.24ms

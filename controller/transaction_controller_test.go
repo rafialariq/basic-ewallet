@@ -518,6 +518,26 @@ func (suite *TransactionControllerTestSuite) TestTransferBalanceErrorUsecase_Fai
 	assert.NotNil(suite.T(), actual.Error)
 }
 
+func (suite *TransactionControllerTestSuite) TestTransferMoneyToMerchant_Success() {
+	dummyAmount := 10000.00
+	transactionUsecaseMock := new(TransactionUsecaseMock)
+	suite.transactionUsecaseMock = transactionUsecaseMock
+	suite.transactionUsecaseMock.On("TransferMoney", dummyUsers[0].PhoneNumber, dummyMerchants[0].MerchantCode, dummyAmount).Return(nil)
+
+	err := suite.transactionUsecaseMock.TransferMoney(dummyUsers[0].PhoneNumber, dummyMerchants[0].MerchantCode, dummyAmount)
+	assert.Nil(suite.T(), err)
+}
+
+func (suite *TransactionControllerTestSuite) TestTransferMoneyToMerchant_Failed() {
+	dummyAmount := -10000.00
+	transactionUsecaseMock := new(TransactionUsecaseMock)
+	suite.transactionUsecaseMock = transactionUsecaseMock
+	suite.transactionUsecaseMock.On("TransferMoney", dummyUsers[0].PhoneNumber, dummyMerchants[0].MerchantCode, dummyAmount).Return(errors.New("Transfer failed"))
+
+	err := suite.transactionUsecaseMock.TransferMoney(dummyUsers[0].PhoneNumber, dummyMerchants[0].MerchantCode, dummyAmount)
+	assert.NotNil(suite.T(), err)
+}
+
 func (suite *TransactionControllerTestSuite) SetupTest() {
 	suite.routerMock = gin.Default()
 	suite.routerGroupMock = suite.routerMock.Group("/menu")

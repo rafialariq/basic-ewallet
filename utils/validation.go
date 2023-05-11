@@ -2,11 +2,15 @@ package utils
 
 import (
 	"regexp"
+	"strconv"
 	"strings"
 )
 
 func IsUsernameValid(username string) bool {
-	if len(username) < 6 || len(username) > 20 {
+	minUsername, _ := strconv.Atoi(DotEnv("MIN_UNAME", ".env"))
+	maxUsername, _ := strconv.Atoi(DotEnv("MAX_UNAME", ".env"))
+
+	if len(username) < minUsername || len(username) > maxUsername {
 		return false
 	}
 
@@ -14,8 +18,10 @@ func IsUsernameValid(username string) bool {
 }
 
 func IsPasswordValid(password string) bool {
+	minPassword, _ := strconv.Atoi(DotEnv("MIN_PASS", ".env"))
+	maxPassword, _ := strconv.Atoi(DotEnv("MAX_PASS", ".env"))
 
-	if len(password) <= 8 || len(password) >= 20 {
+	if len(password) <= minPassword || len(password) >= maxPassword {
 		return false
 	} else if strings.ContainsAny(password, ` ^*+=-_()<>,;:\\"[]`) {
 		return false
@@ -36,9 +42,11 @@ func IsEmailValid(email string) bool {
 }
 
 func IsPhoneNumberValid(phoneNumber string) bool {
+	minPhoneNum, _ := strconv.Atoi(DotEnv("MIN_PHONE_NUM", ".env"))
+	maxPhoneNum, _ := strconv.Atoi(DotEnv("MAX_PHONE_NUM", ".env"))
 	phoneNumber = strings.ReplaceAll(phoneNumber, " ", "")
 
-	if len(phoneNumber) < 10 || len(phoneNumber) > 14 {
+	if len(phoneNumber) < minPhoneNum || len(phoneNumber) > maxPhoneNum {
 		return false
 	}
 

@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"strconv"
 	"time"
 
 	"final_project_easycash/model"
@@ -31,6 +32,8 @@ func (r *registerService) UserSignup(newUser *model.User) (bool, string) {
 		return false, "user already exist"
 	}
 
+	authDuration, _ := strconv.Atoi(utils.DotEnv("AUTH_DURATION", ".env"))
+
 	newUser.Password = utils.PasswordHashing(newUser.Password)
 
 	user, res := r.registerRepo.UserRegister(newUser)
@@ -39,9 +42,9 @@ func (r *registerService) UserSignup(newUser *model.User) (bool, string) {
 		token := jwt.New(jwt.SigningMethodHS256)
 		claims := token.Claims.(jwt.MapClaims)
 		claims["username"] = newUser.Username
-		claims["exp"] = time.Now().Add(time.Minute * 5).Unix() // hardcode
+		claims["exp"] = time.Now().Add(time.Minute * time.Duration(authDuration)).Unix()
 
-		tokenString, err := token.SignedString([]byte("secretkey")) // hardcode
+		tokenString, err := token.SignedString([]byte(utils.DotEnv("TOKEN_KEY", ".env")))
 		if err != nil {
 			return false, "failed to generate token"
 		}
